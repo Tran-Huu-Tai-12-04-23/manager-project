@@ -46,7 +46,7 @@ function FormAddNewProject({ action = (e) => {} }) {
       style={{
         backdropFilter: "blur(20px)",
         maxHeight: "calc(100vh - 6rem)",
-        minHeight: "30rem",
+        height: "90vh",
       }}
       className="relative p-4 pb-6 text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md min-w-40rem w-1/2"
     >

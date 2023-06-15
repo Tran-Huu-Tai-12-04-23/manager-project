@@ -54,7 +54,7 @@ function MenuSideBar({ active, setActive }) {
         <ul className="m-0 p-0 w-full">
           {nav.map((n, index) => {
             return (
-              <Tooltip key={index} title={n.name}>
+              <Tooltip key={index} title={n.name} placement="left">
                 <li
                   style={{
                     borderLeft: "4px solid transparent",

@@ -47,7 +47,6 @@ const TextEditor = () => {
         data={data}
         onChange={handleEditorChange}
       />
-      <Button sx={{ fontSize: ".75rem", marginTop: "1rem" }}>Lưu lại</Button>
     </div>
   );
 };

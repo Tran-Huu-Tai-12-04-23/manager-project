@@ -54,63 +54,74 @@ function Register({ theme, handleThemeSwitch, setActiveLogin }) {
     });
     return result;
   };
+
+  const checkEmailExists = async (email) => {
+    let result = await Service.callApi("/user/check-email-exist", {
+      email: email,
+    });
+    return result;
+  };
   const handleConfirmRegister = async () => {
-    let checkErr = false;
     if (!email) {
       toast.warning("Vui lòng nhập email của bạn!", {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,
       });
-      checkErr = true;
+      return;
     }
     if (!password) {
       toast.warning("Vui lòng nhập mật khẩu của bạn!", {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,
       });
-      checkErr = true;
+      return;
     }
     if (!password) {
       toast.warning("Vui lòng xác nhận mật khẩu của bạn!", {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,
       });
-      checkErr = true;
+      return;
     }
     if (!Util.isEmail(email) && email) {
       toast.warning("Email của bạn không đúng định dạng!", {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,
       });
-      checkErr = true;
+      return;
     }
-
     if (password !== confirmPassword) {
       toast.warning("Mật khẩu xác nhận không trùng khớp bạn nhé!", {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,
       });
-      checkErr = true;
+      return;
     }
-
-    if (checkErr === false) {
-      setOpenProcess(true);
-      let result = await sendEmail(email);
-      if (result.status === true) {
-        setOpenProcess(false);
-        setCodeSent(result.code);
-        setOpenModalConfirmEmail(true);
-        toast.success("Vui lòng kiểm tra email để lấy mã code!", {
-          position: toast.POSITION.TOP_CENTER,
-          autoClose: 2000,
-        });
-      } else {
-        setOpenProcess(false);
-        toast.error("Không gửi được email!", {
-          position: toast.POSITION.TOP_CENTER,
-          autoClose: 2000,
-        });
-      }
+    setOpenProcess(true);
+    let result = await checkEmailExists(email);
+    if (result.status === true) {
+      toast.warning("Email này đã tồn tại, vui lòng chọn email khác bạn nhé!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      setOpenProcess(false);
+      return;
+    }
+    result = await sendEmail(email);
+    if (result.status === true) {
+      setOpenProcess(false);
+      setCodeSent(result.code);
+      setOpenModalConfirmEmail(true);
+      toast.success("Vui lòng kiểm tra email để lấy mã code!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+    } else {
+      setOpenProcess(false);
+      toast.error("Không gửi được email!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
     }
   };
 

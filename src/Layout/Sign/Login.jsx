@@ -1,4 +1,6 @@
-import { Button, Checkbox, TextField } from "@mui/material";
+import { useState } from "react";
+
+import { Button, CircularProgress } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -8,12 +10,103 @@ import logo_google from "../../assets/logo_google.png";
 import logo_github from "../../assets/logo_github.png";
 
 import { Slide } from "react-awesome-reveal";
-
 import Input from "../../Component/Input";
 
+import Service from "../../Service";
+import { toast } from "react-toastify";
+import Util from "../../Util";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../../firebase";
+import ModalCustom from "../../Component/Modal";
+
 function Login({ theme, handleThemeSwitch, setActiveLogin }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [openProcessLogin, setOpenProcessLogin] = useState(false);
+  const [waitForAuthentication, setWaitForAuthentication] = useState(false);
+  const loginWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider())
+        .then(async (res) => {
+          const user = res.user;
+          setWaitForAuthentication(true);
+          if (user.metadata.creationTime === user.metadata.lastSignInTime) {
+            const { email, uid, photoURL, displayName } = user;
+            await Service.callApi("/user/register", {
+              email,
+              uid,
+              photoURL,
+              displayName,
+            });
+          }
+          setWaitForAuthentication(false);
+          toast.success("Đăng nhập thành công!", {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 2000,
+          });
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+  const handleLogin = async () => {
+    setOpenProcessLogin(true);
+    if (!email) {
+      toast.warning("Vui lòng nhập email của bạn!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      setOpenProcessLogin(false);
+      return;
+    }
+    if (!password) {
+      toast.warning("Vui lòng nhập mật khẩu của bạn!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      setOpenProcessLogin(false);
+      return;
+    }
+    if (!Util.isEmail(email)) {
+      toast.warning("Email của bạn không hợp lệ!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      setOpenProcessLogin(false);
+      return;
+    }
+
+    let result = await Service.callApi("/user/login", {
+      email: email,
+      password: password,
+    });
+
+    if (result.status === true) {
+      console.log(result);
+      setOpenProcessLogin(false);
+      toast.success(result.message, {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+    } else {
+      setOpenProcessLogin(false);
+      toast.error(result.message, {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+    }
+  };
   return (
     <div className="p-10 flex min-h-screen justify-center items-center">
+      {waitForAuthentication && (
+        <ModalCustom open={true}>
+          <CircularProgress></CircularProgress>
+        </ModalCustom>
+      )}
       <Slide direction={"left"} duration={800}>
         <div className="max-w-40 mr-10">
           <div className="flex justify-start items-center  mb-10 ">
@@ -85,6 +178,7 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
                 startIcon={
                   <img className="h-8 scale-75" src={logo_google}></img>
                 }
+                onClick={loginWithGoogle}
               >
                 Đăng nhập với google
               </Button>
@@ -117,11 +211,20 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
             <div className="w-full font-family mt-6 grid grid-cols-1 gap-6">
               <div className="grid-cols-1 grid gap-2 font-primary">
                 <h5 className="text-md">Email</h5>
-                <Input placeholder="example@gmail.com" />
+                <Input
+                  placeholder="example@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
               <div className="grid-cols-1 grid gap-2 font-primary">
                 <h5 className="text-md">Mật khẩu</h5>
-                <Input type="password" placeholder="########" />
+                <Input
+                  type="password"
+                  placeholder="########"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
 
                 <div className="flex justify-between items-center mt-5">
                   <div className="justify-start items-center flex">
@@ -138,20 +241,46 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
                 </div>
               </div>
 
-              <Button
-                sx={{
-                  background: "rgba(54, 94, 255, 1)",
-                  color: "#fff",
-                  borderRadius: "1rem",
-                  padding: ".5rem 2rem",
-                  "&:hover": {
-                    background: "rgba(54, 94, 255,1)",
-                    filter: "brightness(120%)",
-                  },
-                }}
-              >
-                Đăng nhập ngay
-              </Button>
+              {!openProcessLogin && (
+                <Button
+                  sx={{
+                    background: "rgba(54, 94, 255, 1)",
+                    color: "#fff",
+                    borderRadius: "1rem",
+                    padding: ".5rem 2rem",
+                    "&:hover": {
+                      background: "rgba(54, 94, 255,1)",
+                      filter: "brightness(120%)",
+                    },
+                  }}
+                  onClick={handleLogin}
+                >
+                  Đăng nhập ngay
+                </Button>
+              )}
+
+              {openProcessLogin && (
+                <Button
+                  sx={{
+                    background: "rgba(54, 94, 255, 1)",
+                    color: "#fff",
+                    borderRadius: "1rem",
+                    padding: ".5rem 2rem",
+                    "&:hover": {
+                      background: "rgba(54, 94, 255,1)",
+                      filter: "brightness(120%)",
+                    },
+                  }}
+                >
+                  <CircularProgress
+                    sx={{
+                      color: "#ffff",
+                      height: "24px!important",
+                      width: "24px!important",
+                    }}
+                  />
+                </Button>
+              )}
 
               <h5 className="text-sm font-family ">
                 Bạn vẫn chưa có tài khoản?{" "}
