@@ -1,28 +1,44 @@
 import { AvatarGroup, Avatar } from "@mui/material";
+import { useEffect, useState } from "react";
 
 function CardProject({ data }) {
+  const [date, setDate] = useState(new Date(data.date_end));
+  const [color, setColor] = useState("design");
+  const [late, setLate] = useState(false);
+  const [numberDay, setNumberDay] = useState(0);
+  useEffect(() => {
+    const timeDiff = Math.abs(date - new Date());
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+    setNumberDay(daysDiff);
+    if (daysDiff <= 1) {
+      setColor("todo");
+    }
+    if (daysDiff <= 0) {
+      setLate(true);
+    }
+  }, [date]);
   return (
-    <div className="w-full h-fit dark:bg-dark-second bg-light-second p-2 rounded-xl">
-      <div
-        className={`flex justify-start items-center bg-${data.priority} w-fit pl-4 pr-4 pt-1 rounded-md pb-1`}
-      >
-        <div className={`p-1 h-2 rounded-full mr-2  bg-${data.priority}`}></div>
-        <h5 className="font-family text-xs"> {data.priority}</h5>
-      </div>
-      <h5 className="font-family text-xs mt-2">{data.name}</h5>
-      <div className="justify-between flex items-center w-full">
-        <div className="flex w-full mt-2 rounded-xl bg-light-third dark:bg-dark-third overflow-hidden mr-2">
-          <div
-            className="h-2  bg-primary rounded-xl"
-            style={{
-              width: "13%",
-            }}
-          ></div>
-        </div>
-      </div>
-      <div className="w-fit mt-2 text-blur-light text-xs dark:text-blur-dark">
-        Hoàn thành 13 %
-      </div>
+    <div className="w-full h-fit dark:bg-dark-second bg-light-second p-2 rounded-md">
+      <h5 className="font-family text-md capitalize">{data.title}</h5>
+      <h5 className="font-family text-xs mt-2 mb-2 text-blur-light dark:text-blur-dark">
+        Ngày hết hạn :
+        <span className={`ml-2 text-${color}`}>
+          {date.toLocaleDateString()}
+        </span>
+      </h5>
+
+      {!late && (
+        <h5 className={`font-family text-xs mt-2 mb-2  text-${color}`}>
+          Còn {numberDay} ngày nữa hết hạn
+        </h5>
+      )}
+      {late && (
+        <h5 className="font-family text-xs mt-2 mb-2 text-blur-light dark:text-blur-dark">
+          Đã hết hạn
+        </h5>
+      )}
+
       <div className="w-full pl-2 mt-2">
         <AvatarGroup
           total={24}

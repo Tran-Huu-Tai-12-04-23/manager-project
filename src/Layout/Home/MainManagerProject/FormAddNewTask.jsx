@@ -7,13 +7,18 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { MdOutlineEditCalendar, MdAdd } from "react-icons/md";
+import TextEditor from "../../../Component/TextEditor";
+import { useSelector } from "react-redux";
+import Service from "../../../Service";
+import { toast } from "react-toastify";
 
-function FormAddNewTask({ action = (e) => {} }) {
+function FormAddNewTask({ action = (e) => {}, projectId = null, indexTask }) {
+  const dataLogin = useSelector((state) => state.reducer.dataLogin);
   const [date, setDate] = useState(new Date());
-  const [addNewSubTask, setAddNewSubTask] = useState(false);
-  const [descriptions, setDescription] = useState("");
-
+  const [description, setDescription] = useState("");
+  const [name, setName] = useState("");
   const [priority, setPriority] = useState(0);
+  const [document, setDocument] = useState([]);
 
   const listPriority = [
     { name: "Thấp", value: 0, color: "text-low", background: "bg-low" },
@@ -26,6 +31,89 @@ function FormAddNewTask({ action = (e) => {} }) {
     { name: "Cao", value: 2, color: "text-high", background: "bg-high" },
   ];
 
+  const verifyDataBeforeSend = () => {
+    if (!name) {
+      return {
+        type: false,
+        message: "Vui lòng nhập tiêu đề!",
+      };
+    }
+    if (!description) {
+      return {
+        type: false,
+        message: "Vui lòng nhập mô tả!",
+      };
+    }
+
+    return {
+      type: true,
+      message: "",
+    };
+  };
+  const getInfoFile = (file) => {
+    return file.name + ", Kích thước: " + file.size + " bytes";
+  };
+  const handleSelectDocument = (e) => {
+    const files = e.target.files;
+    Array.from(files).forEach((file) => {
+      if (
+        file.type !== "application/zip" &&
+        file.type !== "application/x-zip-compressed"
+      ) {
+        setDocument((prev) => {
+          return [...prev, { data: file, id: uuid(), name: getInfoFile(file) }];
+        });
+      } else {
+        toast.warning("File .zip không hợp lệ !", {
+          position: toast.POSITION.TOP_CENTER,
+          autoClose: 2000,
+        });
+      }
+    });
+  };
+
+  const handleAddNewTask = async () => {
+    const check = verifyDataBeforeSend();
+
+    if (check.type === false) {
+      toast.warning(check.message, {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+
+      return;
+    }
+
+    const listFileDocument = document.map((doc) => doc.data);
+    const formData = new FormData();
+    formData.append("user_id_init", dataLogin.id);
+    formData.append("project_id", projectId);
+    formData.append("title", name);
+    formData.append("description", description);
+    formData.append("date", date);
+    formData.append("index_task_step", indexTask);
+    formData.append("priority", priority);
+
+    listFileDocument.forEach((file) => {
+      formData.append("file", file);
+    });
+
+    const result = await Service.callApi("/project/create-new-task", formData);
+
+    if (result.status === true) {
+      toast.success(result.message, {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      action();
+    } else {
+      toast.error("Tạo mới không thành công!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+    }
+  };
+
   const ExampleCustomInput = forwardRef(({ value, onClick }, ref) => (
     <div ref={ref} onClick={onClick}>
       <MdOutlineEditCalendar className="example-custom-input hover:text-primary text-xl cursor-pointer mt-2"></MdOutlineEditCalendar>
@@ -37,8 +125,9 @@ function FormAddNewTask({ action = (e) => {} }) {
         backdropFilter: "blur(20px)",
         height: "calc(100vh - 6rem)",
         minHeight: "30rem",
+        width: "calc(100vw - 30rem)",
       }}
-      className="relative p-4 text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md min-w-40rem w-1/2"
+      className="relative p-4 text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md min-w-40rem"
     >
       <div
         onClick={action}
@@ -56,12 +145,14 @@ function FormAddNewTask({ action = (e) => {} }) {
         <div className="p-2text-black dark:text-white h-max ">
           <h5 className="text-xs mt-5  rounded-sm w-fit">Nhập tên công việc</h5>
           <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="ví dụ: code html , css, home page,..."
             className={"mt-2 h-8 rounded-md"}
           ></Input>
           <select
             value={priority}
-            className={`${listPriority[priority]?.color} ${listPriority[priority]?.background} ml-2 mt-2  mb-4 cursor-pointer appearance-none reset  p-1 rounded-md h-6 w-12 text-center  text-xs`}
+            className={`${listPriority[priority]?.color} ${listPriority[priority]?.background} mt-2  mb-4 cursor-pointer appearance-none reset  p-1 rounded-md h-6 w-12 text-center  text-xs`}
             onChange={(e) => setPriority(e.target.value)}
           >
             {listPriority.map((pri, index) => {
@@ -79,28 +170,31 @@ function FormAddNewTask({ action = (e) => {} }) {
               );
             })}
           </select>
-          <h5 className="text-xs mt-5  rounded-sm w-fit">Nhập môt tả</h5>
-          <textarea
-            className="w-full bg-light-third dark:bg-dark-third reset p-2 mt-2 rounded-md focus:border-primary border-1 border-solid border-transparent"
-            placeholder="ví dụ : công việc ..."
-          ></textarea>
-          <h5 className="text-xs mt-5  rounded-sm w-fit">Thêm tài liệu</h5>
+          <h5 className="text-xs mt-2  rounded-sm w-fit">Thêm tài liệu</h5>
           <div className="flex items-center justify-center w-full mt-2 h-max ">
             <label
               onDrop={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                let files = e.dataTransfer.files; // Lấy danh sách file từ sự kiện
-                let fileInfo = "";
-                for (var i = 0; i < files.length; i++) {
-                  var file = files[i];
-                  fileInfo +=
-                    "Tên file: " +
-                    file.name +
-                    ", Kích thước: " +
-                    file.size +
-                    " bytes<br>";
-                }
+                let files = e.dataTransfer.files;
+                Array.from(files).forEach((file) => {
+                  if (
+                    file.type !== "application/zip" &&
+                    file.type !== "application/x-zip-compressed"
+                  ) {
+                    setDocument((prev) => {
+                      return [
+                        ...prev,
+                        { data: file, id: uuid(), name: getInfoFile(file) },
+                      ];
+                    });
+                  } else {
+                    toast.warning("File .zip không hợp lệ !", {
+                      position: toast.POSITION.TOP_CENTER,
+                      autoClose: 2000,
+                    });
+                  }
+                });
                 e.target.classList.remove("border-primary");
                 e.target.classList.add("border-gray-500");
               }}
@@ -143,7 +237,12 @@ function FormAddNewTask({ action = (e) => {} }) {
                   SVG, PNG, JPG or GIF , word, pdf(MAX. 800x400px)
                 </p>
               </div>
-              <input id="dropzone-file" type="file" className="hidden" />
+              <input
+                id="dropzone-file"
+                type="file"
+                className="hidden"
+                onChange={handleSelectDocument}
+              />
             </label>
           </div>
           <h5 className="text-xs mt-5  rounded-sm w-fit">Chọn ngày</h5>
@@ -162,15 +261,8 @@ function FormAddNewTask({ action = (e) => {} }) {
               {date.toLocaleDateString()}
             </h5>
           </div>
-
-          <div className="flex-shrink-0 justify-start items-center flex mt-10 border-t-1 border-solid pt-2 border-blur-light dark:border-blur-dark border-primary">
-            <Avatar alt="huutia" src="" sx={{ width: 30, height: 30 }}></Avatar>
-            <Input
-              placeholder={"Nhập bình luận đầu tiên của bạn..."}
-              className={"ml-2 h-6 mr-10"}
-            ></Input>
-            <Button style={{ marginLeft: "1rem" }}>Gửi</Button>
-          </div>
+          <h5 className="text-xs  rounded-sm w-fit mb-2 mt-5">Nhập môt tả</h5>
+          <TextEditor setDescription={setDescription}></TextEditor>
         </div>
       </div>
       <div className="justify-center items-center flex w-full ">
@@ -180,6 +272,10 @@ function FormAddNewTask({ action = (e) => {} }) {
             marginRight: "auto",
             marginTop: "1rem",
             fontSize: ".75rem",
+          }}
+          onClick={async (e) => {
+            await handleAddNewTask();
+            action();
           }}
         >
           Lưu lại

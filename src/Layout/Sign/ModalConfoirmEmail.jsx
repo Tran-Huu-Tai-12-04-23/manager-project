@@ -21,7 +21,6 @@ function ModalConfirmEmail({
     const result = await sendEmail(email);
     if (result.status === true) {
       setOpenProcess(false);
-      setCodeSent(result.code);
       toast.success("Email xác thực đã gửi lại, vui lòng kiểm tra!", {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,
@@ -42,7 +41,12 @@ function ModalConfirmEmail({
       });
       return;
     }
-    if (codeSent !== code) {
+    const result = await Service.callApi("/user/verify-code", {
+      email,
+      code,
+    });
+
+    if (result.status === false) {
       toast.error("Mã code bạn nhập không đúng, vui lòng nhập lại!", {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,

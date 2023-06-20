@@ -74,14 +74,18 @@
 
 #root .ql-editor {
   min-height: 18em;
+  height: 100% !important;
 }
 .ck.ck-reset.ck-editor.ck-rounded-corners {
   border-radius: 0.5em;
   overflow: hidden;
   border: solid 1px #ccc !important;
+  height: 100% !important;
 }
 
 .ckeditor-container {
+  height: 100% !important;
+
   ul {
     margin: 1em 0;
     padding: 0 0 0 40px;
@@ -141,6 +145,10 @@
     span {
       color: #757575;
     }
+  }
+
+  .ck-content {
+    min-height: 20rem;
   }
 }
 

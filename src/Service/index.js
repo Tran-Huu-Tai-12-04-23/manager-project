@@ -42,16 +42,6 @@ class Service {
       return null;
     }
   }
-  async update(link, data) {
-    link = this.url + link + query;
-    try {
-      const response = await axios.delete(url);
-      return response;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  }
 }
 
 export default new Service();

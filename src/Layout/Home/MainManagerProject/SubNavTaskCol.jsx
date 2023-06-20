@@ -1,36 +1,43 @@
 import { Button, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-function SubNavTaskCol({ tasksData, setOpenModalAddNewTask }) {
+function SubNavTaskCol({
+  stepProject,
+  setOpenModalAddNewTask,
+  index,
+  lastIndex = 0,
+  action = (e) => {},
+  setIndexTask,
+}) {
   return (
     <div className="p-2 justify-center items-center flex  border-b-1 border-solid border-blur-light dark:border-blur-dark">
       <div
         className={`${
-          tasksData.color === "todo"
+          index === "0"
             ? "bg-todo"
-            : tasksData.color === "process"
+            : index === "1"
             ? "bg-process"
-            : tasksData.color === "review"
+            : index === "2"
             ? "bg-review"
-            : tasksData.color === "done"
+            : index === lastIndex
             ? "bg-done"
             : "bg-other"
         } block h-2 mr-2 w-2 rounded-full `}
       ></div>
       <span
         className={`${
-          tasksData.color === "todo"
+          index === "0"
             ? "text-todo"
-            : tasksData.color === "process"
+            : index === "1"
             ? "text-process"
-            : tasksData.color === "review"
+            : index === "2"
             ? "text-review"
-            : tasksData.color === "done"
+            : index === lastIndex
             ? "text-done"
-            : ""
-        } text-xs`}
+            : "text-other"
+        } text-md`}
       >
-        {tasksData.name}
+        {stepProject.name}
       </span>
       <Tooltip title="Thêm công việc" sx={{}}>
         <Button
@@ -43,7 +50,11 @@ function SubNavTaskCol({ tasksData, setOpenModalAddNewTask }) {
             fontSize: ".75rem",
             border: "1px dashed rgba(255, 255, 255, .1)",
           }}
-          onClick={(e) => setOpenModalAddNewTask(true)}
+          onClick={(e) => {
+            setOpenModalAddNewTask(true);
+            action();
+            setIndexTask(index);
+          }}
         ></Button>
       </Tooltip>
     </div>

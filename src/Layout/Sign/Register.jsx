@@ -162,6 +162,7 @@ function Register({ theme, handleThemeSwitch, setActiveLogin }) {
               <div className="grid-cols-1 grid gap-2 font-primary">
                 <h5 className="text-md">Email</h5>
                 <Input
+                  className={"rounded-lg"}
                   placeholder="example@gmail.com"
                   value={email}
                   type="email"
@@ -171,6 +172,7 @@ function Register({ theme, handleThemeSwitch, setActiveLogin }) {
               <div className="grid-cols-1 grid gap-2 font-primary">
                 <h5 className="text-md">Mật khẩu</h5>
                 <Input
+                  className={"rounded-lg"}
                   type="password"
                   placeholder="########"
                   value={password}
@@ -180,6 +182,7 @@ function Register({ theme, handleThemeSwitch, setActiveLogin }) {
               <div className="grid-cols-1 grid gap-2 font-primary">
                 <h5 className="text-md">Nhập lại mật khẩu</h5>
                 <Input
+                  className={"rounded-lg"}
                   type="password"
                   placeholder="########"
                   value={confirmPassword}

@@ -4,6 +4,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 function Input({
+  width = "full",
   onFocus,
   onBlur,
   className,
@@ -19,12 +20,12 @@ function Input({
     setType(Type === "password" ? "text" : "password");
   };
   return (
-    <div className="w-full relative">
+    <div className={`w-${width} relative`}>
       <input
         onFocus={onFocus}
         onBlur={onBlur}
         type={Type}
-        className={` transition-all w-full reset p-4 focus:border-primary border-solid border-1 text-sm border-transparent bg-light-third dark:bg-dark-third rounded-xl ${className}`}
+        className={` transition-all w-full reset p-4 focus:border-primary border-solid border-1 text-sm border-transparent bg-light-third dark:bg-dark-third ${className}`}
         placeholder={placeholder}
         value={value}
         onChange={onChange}

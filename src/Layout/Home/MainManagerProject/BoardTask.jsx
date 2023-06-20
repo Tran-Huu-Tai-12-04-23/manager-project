@@ -8,8 +8,6 @@ import { Button, Tooltip } from "@mui/material";
 import Input from "../../../Component/Input";
 import { Fade, JackInTheBox } from "react-awesome-reveal";
 
-import { taskAction } from "../../../Store/tasksSlice";
-import { useDispatch } from "react-redux";
 import SubNavTaskCol from "./SubNavTaskCol";
 
 import { MdClose } from "react-icons/md";
@@ -18,58 +16,77 @@ import FormAddNewTask from "./FormAddNewTask";
 
 import ScrollContainer from "react-indiana-drag-scroll";
 
-function BoardTask({ tasksData }) {
+import { taskAction } from "../../../Store/taskSlice";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import Service from "../../../Service";
+
+function BoardTask() {
   const dispatch = useDispatch();
   const [openModalAddNewTask, setOpenModalAddNewTask] = useState(false);
   const [addListTask, setAddListTask] = useState(false);
   const [nameListTask, setNameListTask] = useState("");
+  const projectDetail = useSelector((state) => state.reducer.projectDetail);
+  const tasks = useSelector((state) => state.reducer.tasks);
+  const [projectId, setProjectId] = useState(null);
+  const [indexTask, setIndexTask] = useState(0);
 
   const onDragEnd = (result) => {
-    const { res, dispatch, taskAction, tasksData } = result;
+    const { res, dispatch, taskAction, tasks } = result;
     if (!res.destination) return;
     const { source, destination, draggableId } = res;
     const idColTaskSource = source.droppableId;
     const idColTaskDes = destination.droppableId;
-    const listTaskSources = tasksData.find((task, index) => {
-      return task.id === idColTaskSource;
-    })?.tasks;
-    let task = listTaskSources.find((t) => {
-      return t.id.toString() === draggableId;
-    });
-    const index = tasksData.findIndex((task) => task.id === idColTaskDes);
-    // status of the task equals with index of list tasks
-    task = {
-      ...task,
-      status: index,
-    };
+
+    const taskDrag = tasks.find((task) => task._id === draggableId);
 
     const indexSource = source.index;
     const indexDes = destination.index;
-    if (source.droppableId === destination.droppableId) {
-      if (indexSource !== indexDes) {
-        dispatch(
-          taskAction.changeOffsetTask({
-            indexSource,
-            indexDes,
-            taskColId: idColTaskSource,
-          })
-        );
-      }
-    } else {
+    let taskOfCol = [];
+    if (source.droppableId != destination.droppableId) {
       dispatch(
-        taskAction.removeTask({
-          idTask: draggableId,
-          idColTask: idColTaskSource,
+        taskAction.changeStepTask({
+          taskId: draggableId,
+          index: destination.droppableId,
         })
       );
-      dispatch(
-        taskAction.addTask({
-          idColTask: idColTaskDes,
-          newTask: task,
-          index: indexDes,
-        })
+      taskOfCol = tasks.filter((task) => task.index_task_step == idColTaskDes);
+    } else {
+      taskOfCol = tasks.filter(
+        (task) => task.index_task_step == idColTaskSource
       );
     }
+    console.log(taskOfCol);
+    console.log(destination);
+    const taskDes = taskOfCol.find((task, index) => index === indexDes);
+    const taskDes2 = taskOfCol.find((task, index) => index === indexDes + 1);
+    const order1 = taskDes?.order;
+    const order2 = taskDes2?.order;
+    console.log({ order1, order2 });
+    let newOrder = 0;
+    if (order2) {
+      newOrder = (+order1 + +order2) / 2;
+    } else {
+      newOrder = +order1 + 1;
+    }
+    if (indexDes === 0) {
+      newOrder = +order1 - 0.5;
+    }
+    if (!order1 && !order2) {
+      newOrder = 0;
+    }
+    console.log(newOrder);
+
+    if (indexDes === indexSource && idColTaskDes === idColTaskSource) {
+      return;
+    }
+    dispatch(
+      taskAction.changeOrder({
+        taskId: draggableId,
+        newOrder: newOrder,
+      })
+    );
+    dispatch(taskAction.sortTasks());
   };
 
   const handleAddListTask = () => {
@@ -85,6 +102,21 @@ function BoardTask({ tasksData }) {
     }
   };
 
+  useEffect(() => {
+    const initTaskOfProject = async () => {
+      const result = await Service.getDataFromApi(
+        "/project/get-tasks",
+        `/?project_id=${projectDetail._id}`
+      );
+
+      if (result.status === true) {
+        dispatch(taskAction.init(JSON.parse(result.data)));
+      }
+    };
+
+    initTaskOfProject();
+  }, [projectDetail]);
+
   return (
     <Fade>
       <div
@@ -93,7 +125,7 @@ function BoardTask({ tasksData }) {
       >
         <DragDropContext
           onDragEnd={(res) =>
-            onDragEnd((res = { res, dispatch, taskAction, tasksData }))
+            onDragEnd((res = { res, dispatch, taskAction, tasks }))
           }
         >
           <ScrollContainer
@@ -101,10 +133,13 @@ function BoardTask({ tasksData }) {
             style={{ overflow: "auto" }}
           >
             <div className="flex justify-start w-max ">
-              {tasksData.map((data, index) => {
+              {projectDetail.step.map((data, index) => {
                 const indexColNext = index + 1;
                 return (
-                  <Droppable key={data.id} droppableId={data.id}>
+                  <Droppable
+                    key={data.index}
+                    droppableId={data.index.toString()}
+                  >
                     {(provided, snapshot) => (
                       <div
                         style={{
@@ -117,26 +152,37 @@ function BoardTask({ tasksData }) {
                         } m-2 rounded-xl flex flex-col h-full w-15rem border-1 border-solid border-blur-light dark:border-blur-dark`}
                       >
                         <SubNavTaskCol
-                          tasksData={data}
+                          action={(e) => setProjectId(projectDetail._id)}
+                          index={index}
+                          lastIndex={projectDetail.step.length - 1}
+                          stepProject={projectDetail.step[index]}
                           setOpenModalAddNewTask={setOpenModalAddNewTask}
+                          setIndexTask={setIndexTask}
                         ></SubNavTaskCol>
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
                           className={`flex flex-col pb-2 h-full hidden-scroll overflow-auto`}
                         >
-                          {data.tasks.map((task, index2) => {
-                            const idNextCol = tasksData[indexColNext]?.id;
-                            return (
-                              <TaskBoardItem
-                                key={task.id}
-                                data={task}
-                                index={index2}
-                                checked={tasksData.length - 1 > task.status}
-                                idCol={data.id}
-                                idNextCol={idNextCol}
-                              ></TaskBoardItem>
-                            );
+                          {tasks.map((task, index2) => {
+                            const idNextCol =
+                              projectDetail.step[indexColNext]?.id;
+                            const check = task.index_task_step == index;
+
+                            if (check === true) {
+                              return (
+                                <TaskBoardItem
+                                  key={task._id}
+                                  data={task}
+                                  index={index2}
+                                  checked={
+                                    projectDetail.step.length - 1 > task.status
+                                  }
+                                  idCol={data.index.toString()}
+                                  idNextCol={idNextCol}
+                                ></TaskBoardItem>
+                              );
+                            }
                           })}
                           {provided.placeholder}
                         </div>
@@ -169,7 +215,7 @@ function BoardTask({ tasksData }) {
                 <div className="ignore p-4 mt-2 border-1 w-20rem h-fit ml-2 mr-10 rounded-xl border-dashed border-blur-light dark:border-blur-dark">
                   <Input
                     placeholder={"Nhập tiêu đề danh sách"}
-                    className={"h-6 text-xs"}
+                    className={"h-6 text-xs rounded-md"}
                     onChange={(e) => setNameListTask(e.target.value)}
                     value={nameListTask}
                     onKeypressEnter={nameListTask}
@@ -207,6 +253,8 @@ function BoardTask({ tasksData }) {
         <JackInTheBox duration={500}>
           <FormAddNewTask
             action={(e) => setOpenModalAddNewTask(false)}
+            projectId={projectId}
+            indexTask={indexTask}
           ></FormAddNewTask>
         </JackInTheBox>
       </ModalCustom>

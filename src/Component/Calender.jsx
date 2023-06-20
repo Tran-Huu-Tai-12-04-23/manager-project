@@ -7,8 +7,6 @@ import TaskItemList from "./TaskItemList";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { useSelector, useDispatch } from "react-redux";
 
-import { taskManagerAction } from "../Store/tasksManagerSlice";
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ScrollContainer from "react-indiana-drag-scroll";
@@ -32,7 +30,7 @@ const weekdays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 const Calendar = () => {
   const taskList = useSelector((state) => state.reducer.task);
   const dispatch = useDispatch();
-  const tasks = useSelector((state) => state.reducer.taskManager);
+  const tasks = useSelector((state) => state.reducer.tasks);
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [date, setDate] = useState(new Date());

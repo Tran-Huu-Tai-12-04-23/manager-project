@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Button, CircularProgress } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
@@ -15,23 +16,52 @@ import Input from "../../Component/Input";
 import Service from "../../Service";
 import { toast } from "react-toastify";
 import Util from "../../Util";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  GithubAuthProvider,
+} from "firebase/auth";
 import { auth } from "../../firebase";
 import ModalCustom from "../../Component/Modal";
+import { useSelector, useDispatch } from "react-redux";
+import { loginAction } from "../../Store/dataLoginSlice";
+import FormForgotPassword from "./FormForgotPassword";
 
 function Login({ theme, handleThemeSwitch, setActiveLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [openProcessLogin, setOpenProcessLogin] = useState(false);
   const [waitForAuthentication, setWaitForAuthentication] = useState(false);
+  const dispatch = useDispatch();
+  const history = useNavigate();
+  const [openModalForgotPass, setOpenModalForgotPass] = useState(false);
+
+  const handleSaveLogin = (data) => {
+    dispatch(loginAction.login(data));
+    const encryptedData = Util.encryptObject(data, Util.secretKey);
+    localStorage.setItem(Util.hashString("login"), encryptedData);
+    history("/");
+  };
+
+  useEffect(() => {
+    const data = localStorage.getItem(Util.hashString("login"));
+    if (data) {
+      const decryptObject = Util.decryptObject(data, Util.secretKey);
+      dispatch(loginAction.login(decryptObject));
+      if (decryptObject.isLogin) {
+        history("/");
+      }
+    }
+  }, []);
+
   const loginWithGoogle = async () => {
     try {
       await signInWithPopup(auth, new GoogleAuthProvider())
         .then(async (res) => {
           const user = res.user;
           setWaitForAuthentication(true);
+          const { email, uid, photoURL, displayName } = user;
           if (user.metadata.creationTime === user.metadata.lastSignInTime) {
-            const { email, uid, photoURL, displayName } = user;
             await Service.callApi("/user/register", {
               email,
               uid,
@@ -39,11 +69,26 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
               displayName,
             });
           }
-          setWaitForAuthentication(false);
-          toast.success("Đăng nhập thành công!", {
-            position: toast.POSITION.TOP_CENTER,
-            autoClose: 2000,
+
+          const result = await Service.callApi("/user/get-id", {
+            email: email,
+            displayName: displayName,
           });
+
+          if (result.status === true) {
+            handleSaveLogin({
+              email: email,
+              id: result._id,
+              photoURL,
+              displayName,
+              isLogin: true,
+            });
+            toast.success("Đăng nhập thành công!", {
+              position: toast.POSITION.TOP_CENTER,
+              autoClose: 2000,
+            });
+          }
+          setWaitForAuthentication(false);
         })
         .catch((err) => {
           alert(err);
@@ -51,6 +96,49 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
     } catch (err) {
       console.error(err);
       alert(err.message);
+    }
+  };
+  const loginWithGitHub = async () => {
+    try {
+      const res = await signInWithPopup(auth, new GithubAuthProvider());
+      if (!res) {
+        throw new Error("Could not complete signup");
+      }
+      setWaitForAuthentication(true);
+      const user = res.user;
+      const dataUser = user.providerData[0];
+      const { uid, photoURL, displayName } = user;
+      const email = dataUser.email;
+      if (user.metadata.creationTime === user.metadata.lastSignInTime) {
+        await Service.callApi("/user/register", {
+          email: dataUser.uid + "-github",
+          uid,
+          photoURL,
+          displayName,
+        });
+      }
+
+      const result = await Service.callApi("/user/get-id", {
+        email: dataUser.uid + "-github",
+        displayName: displayName,
+      });
+
+      if (result.status === true) {
+        handleSaveLogin({
+          email: dataUser.uid + "-github",
+          id: result._id,
+          photoURL,
+          displayName,
+          isLogin: true,
+        });
+        toast.success("Đăng nhập thành công!", {
+          position: toast.POSITION.TOP_CENTER,
+          autoClose: 2000,
+        });
+      }
+      setWaitForAuthentication(false);
+    } catch (error) {
+      console.log(error);
     }
   };
   const handleLogin = async () => {
@@ -86,8 +174,11 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
     });
 
     if (result.status === true) {
-      console.log(result);
       setOpenProcessLogin(false);
+      handleSaveLogin({
+        ...JSON.parse(result.user),
+        isLogin: true,
+      });
       toast.success(result.message, {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,
@@ -105,6 +196,16 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
       {waitForAuthentication && (
         <ModalCustom open={true}>
           <CircularProgress></CircularProgress>
+        </ModalCustom>
+      )}
+      {openModalForgotPass && (
+        <ModalCustom
+          open={openModalForgotPass}
+          setOpen={setOpenModalForgotPass}
+        >
+          <FormForgotPassword
+            action={(e) => setOpenModalForgotPass(false)}
+          ></FormForgotPassword>
         </ModalCustom>
       )}
       <Slide direction={"left"} duration={800}>
@@ -190,6 +291,7 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
                   border: "1px solid rgba(0, 121, 255, .1)",
                   textTransform: "capitalize",
                 }}
+                onClick={loginWithGitHub}
                 startIcon={<img className="h-8" src={logo_github}></img>}
               >
                 Đăng nhập với github
@@ -212,6 +314,7 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
               <div className="grid-cols-1 grid gap-2 font-primary">
                 <h5 className="text-md">Email</h5>
                 <Input
+                  className={"rounded-lg"}
                   placeholder="example@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -222,6 +325,7 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
                 <Input
                   type="password"
                   placeholder="########"
+                  className={"rounded-lg"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -237,7 +341,12 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
                       Nhớ mật khẩu
                     </label>
                   </div>
-                  <h5 className="text-sm text-primary ">Quên mật khẩu ?</h5>
+                  <h5
+                    className="cursor-pointer text-sm text-primary "
+                    onClick={(e) => setOpenModalForgotPass(true)}
+                  >
+                    Quên mật khẩu ?
+                  </h5>
                 </div>
               </div>
 

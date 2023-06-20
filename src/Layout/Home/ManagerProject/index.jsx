@@ -36,6 +36,7 @@ function ManagerProject({ setOpenModalAddNewProject }) {
       ),
     },
   ]);
+  const [activeTab, setActiveTab] = useState(0);
 
   return (
     <div
@@ -118,8 +119,8 @@ function ManagerProject({ setOpenModalAddNewProject }) {
         }}
       >
         <Header></Header>
-        <Navigate />
-        <MainManagerProject></MainManagerProject>
+        <Navigate setActiveTab={setActiveTab} activeTab={activeTab} />
+        <MainManagerProject activeTab={activeTab}></MainManagerProject>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import WidgetsIcon from "@mui/icons-material/Widgets";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
@@ -9,8 +9,13 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { AiOutlineSetting } from "react-icons/ai";
 
-import { Button, Tooltip } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import logo from "../../assets/logo.png";
+
+import { useDispatch } from "react-redux";
+import { loginAction } from "../../Store/dataLoginSlice";
+import { logOut } from "../../firebase/index";
+import Util from "../../Util";
 
 function MenuSideBar({ active, setActive }) {
   const nav = [
@@ -41,7 +46,14 @@ function MenuSideBar({ active, setActive }) {
       icon: <HelpIcon sx={{ width: 20, height: 20 }} />,
     },
   ];
-
+  const history = useNavigate();
+  const dispatch = useDispatch();
+  const handleLogOut = () => {
+    logOut();
+    dispatch(loginAction.logout());
+    history("/sign");
+    localStorage.removeItem(Util.hashString("login"));
+  };
   return (
     <>
       <div
@@ -69,10 +81,15 @@ function MenuSideBar({ active, setActive }) {
             );
           })}
         </ul>
-        <div className="transition-all hover:bg-light-second cursor-pointer  dark:hover:bg-dark-second mb-4 justify-center items-start flex mt-auto">
-          <Button sx={{ width: "unset", color: "inherit" }}>
-            <LogoutIcon className="rotate-50  mt-auto"></LogoutIcon>
-          </Button>
+        <div className="transition-all hover:bg-light-second cursor-pointer w-full   dark:hover:bg-dark-second mb-2 justify-center items-start flex mt-auto">
+          <Tooltip title="Đăng xuất">
+            <button
+              onClick={handleLogOut}
+              className="reset ml-auto mr-auto p-2 w-fit rounded-sm"
+            >
+              <LogoutIcon className="rotate-50  mt-auto"></LogoutIcon>
+            </button>
+          </Tooltip>
         </div>
       </div>
     </>

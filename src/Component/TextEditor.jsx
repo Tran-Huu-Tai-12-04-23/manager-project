@@ -4,7 +4,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import CodePreview from "./CodePreview";
 import { Button } from "@mui/material";
 
-const TextEditor = () => {
+const TextEditor = ({ setDescription }) => {
   const [data, setData] = useState();
   const editorConfig = {
     toolbar: {
@@ -35,8 +35,8 @@ const TextEditor = () => {
 
   const handleEditorChange = (event, editor) => {
     const newData = editor.getData();
-    console.log(newData);
     setData(newData);
+    setDescription(newData);
   };
 
   return (

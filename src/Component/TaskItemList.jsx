@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Draggable } from "@hello-pangea/dnd";
 import { useDispatch } from "react-redux";
-import { taskManagerAction } from "../Store/tasksManagerSlice";
+import { taskAction } from "../Store/taskSlice";
 
 function TaskItemList({ data, index }) {
   const dispatch = useDispatch();
@@ -17,7 +17,7 @@ function TaskItemList({ data, index }) {
 
   useEffect(() => {
     dispatch(
-      taskManagerAction.changeDateOfTask({
+      taskAction.changeDateOfTask({
         newDate: date.toString(),
         id: data.id,
       })

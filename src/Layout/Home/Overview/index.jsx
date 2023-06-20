@@ -3,8 +3,11 @@ import { BsPersonWorkspace } from "react-icons/bs";
 import { MdOutlineAdd } from "react-icons/md";
 import CardProject from "../../../Component/CardProject";
 import { Tooltip } from "@mui/material";
+import { useSelector } from "react-redux";
 
 function Overview({ setOpenModalAddNewProject }) {
+  const projects = useSelector((state) => state.reducer.projects);
+
   return (
     <div className="p-4 w-full">
       <div className="flex justify-start items-center">
@@ -14,24 +17,9 @@ function Overview({ setOpenModalAddNewProject }) {
         </h5>
       </div>
       <div className="grid grid-cols-5 mt-5 gap-5">
-        <CardProject
-          data={{
-            name: "test",
-            priority: "high",
-          }}
-        ></CardProject>
-        <CardProject
-          data={{
-            name: "test",
-            priority: "high",
-          }}
-        ></CardProject>
-        <CardProject
-          data={{
-            name: "test",
-            priority: "high",
-          }}
-        ></CardProject>
+        {projects.map((project, index) => {
+          return <CardProject data={project} key={index}></CardProject>;
+        })}
       </div>
       <div className="flex justify-start mt-5 items-center">
         <BsPersonWorkspace></BsPersonWorkspace>
@@ -40,24 +28,9 @@ function Overview({ setOpenModalAddNewProject }) {
         </h5>
       </div>
       <div className="grid grid-cols-5 mt-5 gap-5">
-        <CardProject
-          data={{
-            name: "test",
-            priority: "high",
-          }}
-        ></CardProject>
-        <CardProject
-          data={{
-            name: "test",
-            priority: "high",
-          }}
-        ></CardProject>
-        <CardProject
-          data={{
-            name: "test",
-            priority: "high",
-          }}
-        ></CardProject>
+        {projects.map((project, index) => {
+          return <CardProject data={project} key={index}></CardProject>;
+        })}
         <Tooltip title="Thêm dự án">
           <div
             onClick={(e) => setOpenModalAddNewProject(true)}

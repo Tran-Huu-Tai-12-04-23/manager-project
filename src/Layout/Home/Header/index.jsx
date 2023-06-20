@@ -18,6 +18,7 @@ import { themeAction } from "../../../Store/themeSlice";
 function Header() {
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.reducer.theme);
+  const dataLogin = useSelector((state) => state.reducer.dataLogin);
 
   const handleThemeSwitch = () => {
     dispatch(themeAction.switchTheme(theme == "dark" ? "light" : "dark"));
@@ -30,7 +31,7 @@ function Header() {
       style={{
         width: "calc(100% - 1rem)",
       }}
-      className=" flex p-1 pl-4 pr-4 justify-between items-center border-b-1 border-solid border-blur-light dark:border-blur-dark"
+      className=" flex p-1 pl-4 pr-4 h-fit pt-2 pb-2 justify-between items-center border-b-1 border-solid border-blur-light dark:border-blur-dark"
     >
       <div className="relative w-fit  ">
         <SearchIcon className="z-10 absolute left-2  hover:text-primary cursor-pointer top-1/2 -translate-y-1/2"></SearchIcon>
@@ -67,9 +68,13 @@ function Header() {
         <SettingsIcon></SettingsIcon>
         <NotificationsNoneIcon className="ml-4 mr-4"></NotificationsNoneIcon>
         <h5 className="font-bold font-family  text-xs mr-2 text-primary">
-          Xin chào , Hữu Tài
+          Xin chào , {dataLogin?.displayName}
         </h5>
-        <Avatar src={""} sx={{ width: 30, height: 30 }} title="test"></Avatar>
+        <Avatar
+          src={dataLogin?.photoURL}
+          sx={{ width: 30, height: 30 }}
+          title="test"
+        ></Avatar>
       </div>
     </div>
   );

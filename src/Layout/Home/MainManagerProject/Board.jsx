@@ -1,10 +1,9 @@
 import BoardTask from "./BoardTask";
-import NavBarBoard from "./SubNavTaskCol";
 
-function Board({ tasksData }) {
+function Board() {
   return (
     <div className="w-full h-full ">
-      <BoardTask tasksData={tasksData}></BoardTask>
+      <BoardTask></BoardTask>
     </div>
   );
 }

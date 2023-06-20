@@ -3,13 +3,12 @@ import Board from "./Board";
 import { useSelector } from "react-redux";
 import Note from "../Note";
 
-function MainManagerProject({}) {
-  const task = useSelector((state) => state.reducer.task);
-
+function MainManagerProject({ activeTab }) {
   return (
     <div className="w-full bg-light-second dark:bg-dark-second">
-      <Board tasksData={task}></Board>
-      {/* <Note></Note> */}
+      {activeTab === 0 && <Board></Board>}
+
+      {activeTab === 1 && <Note></Note>}
     </div>
   );
 }

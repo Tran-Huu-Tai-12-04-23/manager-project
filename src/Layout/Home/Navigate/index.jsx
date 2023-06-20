@@ -9,12 +9,11 @@ import { JackInTheBox } from "react-awesome-reveal";
 import ModalCustom from "../../../Component/Modal";
 import FormAddNewTask from "../../../Component/FormAddNewMember";
 
-function Navigate({}) {
-  const tasksData = useSelector((state) => state.reducer.task);
-  const [activeTab, setActiveTab] = useState(0);
+function Navigate({ setActiveTab, activeTab }) {
+  const tasks = useSelector((state) => state.reducer.tasks);
   const [numberTask, setNumberTask] = useState(1);
   const [openModalAddNewMember, setOpenModalAddNewMember] = useState(false);
-
+  const projectDetail = useSelector((state) => state.reducer.projectDetail);
   const tabs = [
     {
       name: "Công việc",
@@ -24,16 +23,12 @@ function Navigate({}) {
     },
   ];
   useEffect(() => {
-    if (Array.isArray(tasksData)) {
+    if (Array.isArray(tasks)) {
       let countTask = 0;
-      tasksData.forEach((dt) => {
-        dt.tasks.forEach((task) => {
-          countTask += 1;
-        });
-      });
+      tasks.forEach((dt) => {});
       setNumberTask(countTask);
     }
-  }, [tasksData]);
+  }, [tasks]);
 
   return (
     <div className="w-full pr-4 grid grid-cols-1 gap-0 pt-4  border-b-1 border-blur-light dark:border-blur-dark border-solid">
@@ -45,33 +40,9 @@ function Navigate({}) {
             sx={{ borderRadius: ".4rem", width: 30, height: 30 }}
           ></Avatar>
           <div className="flex flex-col ml-2 w-full">
-            <h5 className="text-sm font-family font-bold">
-              {" "}
-              Create new project ...
+            <h5 className="text-sm font-family font-bold capitalize">
+              {projectDetail.title}
             </h5>
-            <div className="justify-start flex items-center ">
-              <div className="flex w-3/5 rounded-xl bg-light-second dark:bg-dark-second overflow-hidden mr-2">
-                <div
-                  className="h-2  bg-primary rounded-xl"
-                  style={{
-                    width:
-                      Math.round(
-                        (tasksData[tasksData.length - 1]?.tasks.length /
-                          numberTask) *
-                          100
-                      ) + "%",
-                  }}
-                ></div>
-              </div>
-              <span className="text-blur-light text-xs dark:text-blur-dark">
-                Hoàn thành{" "}
-                {Math.round(
-                  (tasksData[tasksData.length - 1]?.tasks.length / numberTask) *
-                    100
-                )}{" "}
-                %
-              </span>
-            </div>
           </div>
         </div>
         <div className="justify-end flex items-center ">
