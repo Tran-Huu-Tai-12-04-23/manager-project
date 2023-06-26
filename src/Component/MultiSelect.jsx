@@ -35,7 +35,10 @@ function MultiSelect({
 
   useEffect(() => {
     const initMember = async () => {
-      const result = await Service.getDataFromApi("/user/get-users");
+      const result = await Service.getDataFromApi(
+        `/user/get-users/?userId=${dataLogin.id}`
+      );
+      console.log(result);
       setMembers(
         JSON.parse(result.data).filter((member) => {
           return member.email !== dataLogin.email;
@@ -43,7 +46,7 @@ function MultiSelect({
       );
     };
     initMember();
-  }, []);
+  }, [dataLogin]);
 
   useEffect(() => {}, [searchNameMember]);
 

@@ -5,31 +5,33 @@ import { useDispatch } from "react-redux";
 import { taskAction } from "../Store/taskSlice";
 
 import { Tooltip } from "@mui/material";
+import { CiEdit } from "react-icons/ci";
 
-function TaskBoardItem({ data, index, idCol, idNextCol, checked }) {
+function TaskBoardItem({ data, index }) {
   const [checkDone, setCheckDone] = useState(false);
   const dispatch = useDispatch();
   const [priorityName, setPriorityName] = useState("Thấp");
   const [openMenu, setOpenMenu] = useState(false);
+
   const listPriority = [
-    { name: "Thấp", value: 0, color: "text-low", background: "bg-low" },
+    { name: "Thấp", value: 0, color: "text-high", background: "bg-high" },
     {
       name: "Vừa",
       value: 1,
       color: "text-medium",
       background: "bg-medium",
     },
-    { name: "Cao", value: 2, color: "text-high", background: "bg-high" },
+    { name: "Cao", value: 2, color: "text-low", background: "bg-low" },
   ];
 
   useEffect(() => {
     if (data.priority === 0) {
       setPriorityName("Thấp");
-    } else if (data.priority === 1) {
+    } else if (data.priority == 1) {
       setPriorityName("Vừa");
-    } else if (data.priority === 2) {
+    } else if (data.priority == 2) {
       setPriorityName("Cao");
-    } else if (data.priority === 3) {
+    } else if (data.priority == 3) {
       setPriorityName("Emergency");
     }
   }, [data]);
@@ -38,19 +40,6 @@ function TaskBoardItem({ data, index, idCol, idNextCol, checked }) {
     if (checkDone === true) {
       let status = data.status + 1;
       data = { ...data, status: status };
-      dispatch(
-        taskAction.removeTask({
-          idTask: data.id,
-          idColTask: idCol,
-        })
-      );
-      dispatch(
-        taskAction.addTask({
-          idColTask: idNextCol,
-          newTask: data,
-          index: 0,
-        })
-      );
     }
   }, [checkDone]);
 
@@ -78,20 +67,18 @@ function TaskBoardItem({ data, index, idCol, idNextCol, checked }) {
               <div
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
-                className={`p-1 h-fit relative rounded-md w-14 text-sm text-center ${
-                  data.type === "ux"
-                    ? "text-ux bg-ux"
-                    : data.type === "design"
-                    ? "text-design bg-design"
-                    : data.type === "code"
-                    ? "text-code bg-code"
-                    : "text-success bg-success"
+                className={`p-1 h-fit  rounded-md w-14 text-sm text-center ${
+                  data.priority == "0"
+                    ? "bg-low text-low"
+                    : data.priority == "1"
+                    ? "bg-medium text-medium"
+                    : "bg-high text-high"
                 }`}
               >
                 {priorityName}
 
                 {openMenu && (
-                  <div className="p-2  bg-light-second dark:bg-dark-second absolute rounded-md bg-red w-fit min-w-[100px]">
+                  <div className="p-2  bg-light-third backdrop-blur-xl dark:bg-dark-third absolute rounded-md bg-red w-fit min-w-[100px]">
                     <ul>
                       {listPriority.map((pri, index) => {
                         return (
@@ -112,20 +99,24 @@ function TaskBoardItem({ data, index, idCol, idNextCol, checked }) {
                   </div>
                 )}
               </div>
-              {checked && (
+              {/* {checked && (
                 <Checkbox
                   sx={{ color: "inherit" }}
                   checked={checkDone}
                   onChange={(e) => setCheckDone(e.target.checked)}
                 />
-              )}
+              )} */}
             </div>
-            <h1 className="capitalize text-sm font-family font-bold mt-2 text-clip w-full">
-              {data.title}
-            </h1>
-            <h1 className=" text-xs text-blur-light dark:text-blur-dark font-family font-bold mt-2 text-clip w-full">
-              {data.date}
-            </h1>
+            <div className="flex justify-between items-center">
+              <h1 className="capitalize text-sm font-family font-bold mt-2 text-clip w-full">
+                {data.name}
+              </h1>
+              <h1 className=" text-xs text-end text-blur-light dark:text-blur-dark font-family font-bold mt-2 text-clip w-full">
+                {new Date(data.createdAt).toLocaleDateString()}
+              </h1>
+            </div>
+
+            <CiEdit className="text-2xl mt-2 hover:text-rose-700 cursor-pointer" />
           </div>
         );
       }}

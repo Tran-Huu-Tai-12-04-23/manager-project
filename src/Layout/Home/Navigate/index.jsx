@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Avatar, AvatarGroup, Button } from "@mui/material";
+import { Avatar, AvatarGroup, Button, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useSelector } from "react-redux";
 
@@ -23,42 +23,68 @@ function Navigate({ setActiveTab, activeTab }) {
     },
   ];
   useEffect(() => {
-    if (Array.isArray(tasks)) {
-      let countTask = 0;
-      tasks.forEach((dt) => {});
-      setNumberTask(countTask);
-    }
+    // if (Array.isArray(tasks)) {
+    //   let countTask = 0;
+    //   tasks.forEach((dt) => {});
+    //   setNumberTask(countTask);
+    // }
   }, [tasks]);
-
+  console.log(projectDetail);
   return (
     <div className="w-full pr-4 grid grid-cols-1 gap-0 pt-4  border-b-1 border-blur-light dark:border-blur-dark border-solid">
       <div className="flex p-4 justify-between items-center">
         <div className="justify-start items-center flex  w-1/2">
-          <Avatar
-            src={""}
-            alt="Huu Tai"
-            sx={{ borderRadius: ".4rem", width: 30, height: 30 }}
-          ></Avatar>
+          <Tooltip
+            title={
+              projectDetail.createdBy.displayName
+                ? projectDetail.createdBy.displayName
+                : projectDetail.createdBy.email
+            }
+          >
+            <Avatar
+              src={projectDetail.createdBy.photoURL}
+              alt={
+                projectDetail.createdBy.displayName
+                  ? projectDetail.createdBy.displayName
+                  : projectDetail.createdBy.email
+              }
+              sx={{ borderRadius: ".4rem", width: 30, height: 30 }}
+            ></Avatar>
+          </Tooltip>
           <div className="flex flex-col ml-2 w-full">
             <h5 className="text-sm font-family font-bold capitalize">
-              {projectDetail.title}
+              {projectDetail?.name}
             </h5>
           </div>
         </div>
         <div className="justify-end flex items-center ">
           <AvatarGroup
-            total={24}
+            total={projectDetail.member.length}
             sx={{
-              width: "30px",
-              height: "30px",
               fontSize: ".725rem",
-              scale: "70%",
-              transform: "translateY(-10px)",
+              width: "unset",
+              float: "right",
+              marginRight: ".5rem",
+              "& div": {
+                width: 30,
+                height: 30,
+              },
             }}
           >
-            <Avatar alt="Remy Sharp" src="" />
-            <Avatar alt="Travis Howard" src="" />
-            <Avatar alt="Agnes Walker" src="" />
+            {projectDetail.member.slice(0, 2).map((mem, index) => {
+              return (
+                <Tooltip
+                  key={index}
+                  title={mem.displayName ? mem.displayName : mem.email}
+                >
+                  <Avatar
+                    alt={mem.displayName ? mem.displayName : mem.email}
+                    src={mem?.photoURL}
+                    sx={{}}
+                  />
+                </Tooltip>
+              );
+            })}
           </AvatarGroup>
           <Button
             onClick={(e) => setOpenModalAddNewMember(true)}

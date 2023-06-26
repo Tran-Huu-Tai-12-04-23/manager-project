@@ -73,7 +73,7 @@ function ModalConfirmEmail({
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder={"ex: hkr35"}
-            className={"h-8"}
+            className={"h-8 rounded-md"}
           ></Input>
           {!openProcess && (
             <button

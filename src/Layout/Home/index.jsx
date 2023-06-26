@@ -51,6 +51,7 @@ const Home = ({ setOpenModalAddNewProject }) => {
           {active !== 1 && <Header></Header>}
           {active === 0 && (
             <Overview
+              setActive={setActive}
               setOpenModalAddNewProject={setOpenModalAddNewProject}
             ></Overview>
           )}

@@ -34,7 +34,6 @@ function Header() {
       className=" flex p-1 pl-4 pr-4 h-fit pt-2 pb-2 justify-between items-center border-b-1 border-solid border-blur-light dark:border-blur-dark"
     >
       <div className="relative w-fit  ">
-        <SearchIcon className="z-10 absolute left-2  hover:text-primary cursor-pointer top-1/2 -translate-y-1/2"></SearchIcon>
         <Input
           placeholder="Nhập từ khóa"
           className="w-64 h-2 text-xs rounded-md pl-10"
@@ -50,7 +49,7 @@ function Header() {
           </Fade>
         )}
 
-        <></>
+        <SearchIcon className="z-0 absolute left-2  hover:text-primary cursor-pointer top-1/2 -translate-y-1/2"></SearchIcon>
       </div>
       <div className="justify-end items-center flex">
         {theme === "light" && (

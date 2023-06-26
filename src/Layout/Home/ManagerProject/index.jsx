@@ -9,34 +9,15 @@ import { Button } from "@mui/material";
 import Navigate from "../Navigate";
 import MainManagerProject from "../MainManagerProject";
 import { IoIosArrowBack } from "react-icons/io";
+import { useSelector } from "react-redux";
+import Alert from "@mui/material/Alert";
 
 function ManagerProject({ setOpenModalAddNewProject }) {
   const [showSideBar, setShowSideBar] = useState(true);
-  const [projects, setProjects] = useState([
-    {
-      name: "project",
-      icon: (
-        <LanguageIcon
-          style={{
-            width: "20",
-            height: "20",
-          }}
-        ></LanguageIcon>
-      ),
-    },
-    {
-      name: "project",
-      icon: (
-        <LanguageIcon
-          style={{
-            width: "20",
-            height: "20",
-          }}
-        ></LanguageIcon>
-      ),
-    },
-  ]);
   const [activeTab, setActiveTab] = useState(0);
+  const projects = useSelector((state) => state.reducer.projects);
+  const projectDetail = useSelector((state) => state.reducer.projectDetail);
+  const [numberWatch, setNumberWatch] = useState(2);
 
   return (
     <div
@@ -48,11 +29,11 @@ function ManagerProject({ setOpenModalAddNewProject }) {
       <div
         onClick={(e) => setShowSideBar(!showSideBar)}
         style={{
-          zIndex: "1000000",
+          zIndex: "100",
         }}
         className={`${
           showSideBar ? "left-48 " : " left-10  rotate-180 "
-        } transition-all fixed backdrop-blur-xl p-2  rounded-md  z-30 justify-center top-3  w-fit hover:dark:bg-dark-second hover:bg-light-second cursor-pointer items-center flex dark:bg-blur-dark bg-blur-light`}
+        } transition-all fixed backdrop-blur-xl p-2  rounded-md   justify-center top-3  w-fit hover:dark:bg-dark-second hover:bg-light-second cursor-pointer items-center flex dark:bg-blur-dark bg-blur-light`}
       >
         <IoIosArrowBack className="text-md text-gray-500"></IoIosArrowBack>
       </div>
@@ -61,20 +42,30 @@ function ManagerProject({ setOpenModalAddNewProject }) {
           transform: showSideBar ? "" : "translateX(-15rem)",
           opacity: showSideBar ? "1" : 0,
           width: "12rem",
+          zIndex: 1,
         }}
-        className=" transition-all z-10 w-15rem fixed left-14 top-0 h-screen p-2 border-r-1 border-blur-light dark:border-blur-dark border-solid "
+        className=" transition-all w-15rem fixed left-14 top-0 h-screen p-2 border-r-1 border-blur-light dark:border-blur-dark border-solid "
       >
         <h1 className="font-family font-bold text-sm border-b-4 border-solid border-blur-light dark:border-blur-dark rounded-sm">
           Dự án của bạn
         </h1>
-        <div className="col-span-10 mt-10">
+        <div className="col-span-10 mt-10 ">
           {projects.map((pr, index) => {
-            return <InfoSmallProject key={index} data={pr}></InfoSmallProject>;
+            if (numberWatch > index) {
+              return (
+                <InfoSmallProject key={index} data={pr}></InfoSmallProject>
+              );
+            }
           })}
         </div>
-        <h1 className="font-family text-xs font-bold text-center hover:text-primary cursor-pointer">
-          Xem thêm
-        </h1>
+        {numberWatch < projects.length && (
+          <h1
+            onClick={(e) => setNumberWatch((prev) => prev + 2)}
+            className="font-family text-xs font-bold text-center hover:text-primary cursor-pointer"
+          >
+            Xem thêm
+          </h1>
+        )}
 
         <h1 className="mt-4 font-family font-bold text-sm border-b-4 border-solid border-blur-light dark:border-blur-dark rounded-sm">
           Thời gian
@@ -119,8 +110,25 @@ function ManagerProject({ setOpenModalAddNewProject }) {
         }}
       >
         <Header></Header>
-        <Navigate setActiveTab={setActiveTab} activeTab={activeTab} />
-        <MainManagerProject activeTab={activeTab}></MainManagerProject>
+        {projectDetail && (
+          <>
+            <Navigate setActiveTab={setActiveTab} activeTab={activeTab} />
+            <MainManagerProject activeTab={activeTab}></MainManagerProject>
+          </>
+        )}
+        {!projectDetail && (
+          <Alert
+            severity="info"
+            sx={{
+              margin: "2rem",
+              background: "rgba(24, 147, 213, .2)",
+              backdropFilter: "blur(20px)",
+              color: "inherit",
+            }}
+          >
+            Vui lòng chọn dự án!
+          </Alert>
+        )}
       </div>
     </div>
   );

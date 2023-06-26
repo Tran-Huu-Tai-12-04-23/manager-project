@@ -2,20 +2,43 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const projectSlice = createSlice({
   name: "task",
-  initialState: [
-    {
-      _id: "648da3bbf796942184b7fc50",
-      user_id_init: "648bcc42b500eef25dc543e3",
-      title: "first project",
-      description: "<ol><li>task 1 : asdasdsad</li></ol>",
-      date_end: "Sat Jun 17 2023 19:14:22 GMT+0700 (Indochina Time)",
-      member: "648ad8358bf0cd35e43a9e5e",
-      step: [{ name: "Init", index: 0 }],
-    },
-  ],
+  initialState: [],
   reducers: {
     init: (state, action) => {
-      return [...action.payload];
+      if (Array.isArray(action.payload)) {
+        return [...action.payload];
+      } else {
+        // Handle non-iterable payload here
+        return state; // or return a default value based on your requirements
+      }
+    },
+
+    addNewCol: (state, action) => {
+      const { newCol, projectId } = action.payload;
+      return state.map((project) => {
+        if (project._id === projectId) {
+          return { ...project, columns: [...project.columns, newCol] };
+        }
+        return { ...project };
+      });
+    },
+
+    removeCol: (state, action) => {
+      const { colId, projectId } = action.payload;
+      return state.map((pro) => {
+        if (pro._id === projectId) {
+          return {
+            ...pro,
+            columns: pro.columns.filter((col) => col.id !== colId),
+          };
+        }
+        return pro;
+      });
+    },
+
+    addNewProject: (state, action) => {
+      const { newProject } = action.payload;
+      return [...state, newProject];
     },
   },
 });

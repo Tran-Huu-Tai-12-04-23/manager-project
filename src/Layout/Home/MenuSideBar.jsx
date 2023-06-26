@@ -60,7 +60,7 @@ function MenuSideBar({ active, setActive }) {
         className={`relative w-14 text-sm h-screen pt-4 flex justify-start items-start `}
       ></div>
       <div
-        className={`dark:bg-dark-primary z-20 w-14 fixed h-screen pt-4 flex justify-start items-start flex-col border-r-1 border-blur-light dark:border-blur-dark border-solid`}
+        className={`dark:bg-dark-primary w-14 fixed h-screen pt-4 flex justify-start items-start flex-col border-r-1 border-blur-light dark:border-blur-dark border-solid`}
       >
         <img className="h-8 w-10 mb-6 " src={logo}></img>
         <ul className="m-0 p-0 w-full">

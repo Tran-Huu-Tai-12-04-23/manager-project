@@ -34,9 +34,9 @@ class Service {
     }
   }
   async remove(link, query) {
-    const url = +link + params;
+    const url = this.url + link + query;
     try {
-      const response = await axios.get(link);
+      const response = await axios.delete(url);
       return response.data;
     } catch (error) {
       return null;

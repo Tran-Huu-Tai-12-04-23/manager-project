@@ -12,6 +12,9 @@ import { toast } from "react-toastify";
 import MultiSelect from "../Component/MultiSelect";
 import Service from "../Service";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { projectDetailAction } from "../Store/projectDetailSlice";
+import { projectAction } from "../Store/projectSlice";
 
 const members = [
   { title: "The Shawshank Redemption", year: 1994 },
@@ -30,6 +33,7 @@ function FormAddNewProject({ action = (e) => {} }) {
   const [memberSelected, setMemberSelected] = useState([]);
   const [document, setDocument] = useState([]);
   const dataLogin = useSelector((state) => state.reducer.dataLogin);
+  const dispatch = useDispatch();
 
   const ExampleCustomInput = forwardRef(({ value, onClick }, ref) => (
     <div ref={ref} onClick={onClick}>
@@ -85,7 +89,13 @@ function FormAddNewProject({ action = (e) => {} }) {
       message: "",
     };
   };
-
+  const clearForm = () => {
+    setDate(new Date());
+    setTitle("");
+    setDescription("");
+    setMemberSelected([]);
+    setDocument([]);
+  };
   const handleAddNewInFoProject = async () => {
     const check = verifyDataBeforeSend();
 
@@ -119,10 +129,14 @@ function FormAddNewProject({ action = (e) => {} }) {
     );
 
     if (result.status === true) {
+      const newInfoProject = JSON.parse(result.data);
+      dispatch(projectAction.addNewProject({ newProject: newInfoProject }));
+      dispatch(projectDetailAction.selectProject({ project: newInfoProject }));
       toast.success(result.message, {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,
       });
+      clearForm();
       action();
     } else {
       toast.error("Tạo mới không thành công!", {

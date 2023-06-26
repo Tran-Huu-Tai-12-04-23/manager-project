@@ -5,7 +5,7 @@ import CardProject from "../../../Component/CardProject";
 import { Tooltip } from "@mui/material";
 import { useSelector } from "react-redux";
 
-function Overview({ setOpenModalAddNewProject }) {
+function Overview({ setOpenModalAddNewProject, setActive }) {
   const projects = useSelector((state) => state.reducer.projects);
 
   return (
@@ -18,7 +18,13 @@ function Overview({ setOpenModalAddNewProject }) {
       </div>
       <div className="grid grid-cols-5 mt-5 gap-5">
         {projects.map((project, index) => {
-          return <CardProject data={project} key={index}></CardProject>;
+          return (
+            <CardProject
+              setActive={setActive}
+              data={project}
+              key={index}
+            ></CardProject>
+          );
         })}
       </div>
       <div className="flex justify-start mt-5 items-center">
@@ -29,7 +35,13 @@ function Overview({ setOpenModalAddNewProject }) {
       </div>
       <div className="grid grid-cols-5 mt-5 gap-5">
         {projects.map((project, index) => {
-          return <CardProject data={project} key={index}></CardProject>;
+          return (
+            <CardProject
+              data={project}
+              key={index}
+              setActive={setActive}
+            ></CardProject>
+          );
         })}
         <Tooltip title="Thêm dự án">
           <div

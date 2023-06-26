@@ -12,6 +12,7 @@ export default function ModalCustom({ open, setOpen, children }) {
         color: "inherit",
         display: "flex",
         justifyContent: "center",
+        backdropFilter: "blur(20px)",
         alignItems: "center",
       }}
       open={open}

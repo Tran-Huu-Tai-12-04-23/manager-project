@@ -11,7 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 
 import ModalCustom from "./Component/Modal";
-import { JackInTheBox } from "react-awesome-reveal";
+import { Slide } from "react-awesome-reveal";
 import FormAddNewProject from "./Component/FormAddNewProject";
 
 function App() {
@@ -83,17 +83,19 @@ function App() {
           {/* <Route exact path="/test" element={<Test />} /> */}
         </Routes>
       </Router>
-      <ToastContainer />
-      <ModalCustom
-        open={openModalAddNewProject}
-        setOpen={setOpenModalAddNewProject}
+      <ToastContainer />(
+      <div
+        className={`w-screen fixed top-0 left-0 bottom-0 right-0 z-20 ${
+          openModalAddNewProject ? "opacity-100" : "opacity-0 hidden"
+        } transition-all`}
       >
-        <JackInTheBox duration={500}>
+        <Slide delay={0} direction="down" duration={500}>
           <FormAddNewProject
             action={(e) => setOpenModalAddNewProject(false)}
           ></FormAddNewProject>
-        </JackInTheBox>
-      </ModalCustom>
+        </Slide>
+      </div>
+      )
     </div>
   );
 }
