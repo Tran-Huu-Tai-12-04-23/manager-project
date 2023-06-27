@@ -26,10 +26,10 @@ const members = [
   { title: "Pulp Fiction", year: 1994 },
 ];
 
-function FormAddNewProject({ action = (e) => {} }) {
+function FormAddNewProject({ action = (e) => {}, type, data }) {
   const [date, setDate] = useState(new Date());
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState(data?.name);
+  const [description, setDescription] = useState(data?.description);
   const [memberSelected, setMemberSelected] = useState([]);
   const [document, setDocument] = useState([]);
   const dataLogin = useSelector((state) => state.reducer.dataLogin);
@@ -152,7 +152,7 @@ function FormAddNewProject({ action = (e) => {} }) {
         backdropFilter: "blur(20px)",
         height: "100vh",
       }}
-      className="relative overflow-hidden p-4 pb-6 text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md w-screen "
+      className="z-50 relative overflow-hidden p-4 pb-6 text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md w-screen "
     >
       <div
         onClick={action}
@@ -160,9 +160,17 @@ function FormAddNewProject({ action = (e) => {} }) {
       >
         <MdOutlineClose></MdOutlineClose>
       </div>
-      <h1 className="text-md border-b-4 border-solid border-primary rounded-sm w-fit">
-        Nhập nội dung dự án
-      </h1>
+      {type === "edit" && (
+        <h1 className="text-md border-b-4 border-solid border-primary rounded-sm w-fit">
+          Chỉnh sửa nội dung dự án
+        </h1>
+      )}
+      {type !== "edit" && (
+        <h1 className="text-md border-b-4 border-solid border-primary rounded-sm w-fit">
+          Nhập nội dung dự án
+        </h1>
+      )}
+
       <div
         className="overflow-auto pt-2 custom-scrollbar bd-radius-scroll pl-2 pr-2 pb-10"
         style={{ height: "calc(100% - 4rem)" }}
@@ -298,16 +306,22 @@ function FormAddNewProject({ action = (e) => {} }) {
               </div>
             )}
           </div>
-          <div className="w-full mt-5">
-            <h5 className="text-xs rounded-sm w-fit mb-2">Thành viên</h5>
-            <MultiSelect
-              memberSelected={memberSelected}
-              setMemberSelected={setMemberSelected}
-            ></MultiSelect>
-          </div>
+          {type !== "edit" && (
+            <div className="w-full mt-5">
+              <h5 className="text-xs rounded-sm w-fit mb-2">Thành viên</h5>
+              <MultiSelect
+                memberSelected={memberSelected}
+                setMemberSelected={setMemberSelected}
+              ></MultiSelect>
+            </div>
+          )}
+
           <div className="w-full mt-5">
             <h5 className="text-xs rounded-sm w-fit mb-2">Thêm mô tả</h5>
-            <TextEditor setDescription={setDescription}></TextEditor>
+            <TextEditor
+              setDescription={setDescription}
+              description={description}
+            ></TextEditor>
           </div>
         </div>
       </div>

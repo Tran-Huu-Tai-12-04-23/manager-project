@@ -1,22 +1,77 @@
+import { useState, useEffect } from "react";
+
 import { MdOutlineClose } from "react-icons/md";
 import Input from "./Input";
-import { useState } from "react";
-
-import { Fade } from "react-awesome-reveal";
 import { AiOutlineLink } from "react-icons/ai";
-import { Button } from "@mui/material";
+
+import Service from "../Service/index";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
+import { CircularProgress } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { projectDetailAction } from "../Store/projectDetailSlice";
 
 function FormAddNewMember({ action }) {
   const [emailOrName, setEmailOrName] = useState("");
+  const [userSelect, setUserSelect] = useState(null);
   const [suggestResult, setSuggestResult] = useState(false);
-  const [listEmail, setListEmail] = useState([
-    "huutai@gmail.com",
-    "nguye@gmail.com",
-    "52100997@gmail.com",
-  ]);
-  const [listName, setListName] = useState(["Tran Huu Tai", "Lam"]);
+  const [listUser, setListUser] = useState([]);
+  const dataLogin = useSelector((state) => state.reducer.dataLogin);
+  const projectDetail = useSelector((state) => state.reducer.projectDetail);
+  const [waitAddMember, setWaitAddMember] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const initMember = async () => {
+      const result = await Service.getDataFromApi(
+        `/user/get-users-not-member/?projectId=${projectDetail._id}`
+      );
+      setListUser(
+        JSON.parse(result.data).filter((member) => {
+          return member.email !== dataLogin.email;
+        })
+      );
+    };
+    initMember();
+  }, [dataLogin]);
+
+  const handleAddMember = async () => {
+    if (!userSelect) {
+      toast.warning("Bạn chưa chọn!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+    }
+    if (projectDetail && userSelect) {
+      setWaitAddMember(true);
+      const result = await Service.update("/project/add-member-to-project", {
+        userId: userSelect._id,
+        projectId: projectDetail._id,
+      });
+      console.log(result);
+      if (result.data.status === true) {
+        toast.success("Thêm thành viên thành công!", {
+          position: toast.POSITION.TOP_CENTER,
+          autoClose: 2000,
+        });
+        action();
+        const newProject = result.data;
+        dispatch(
+          projectDetailAction.initProjectDetail(JSON.parse(newProject.data))
+        );
+      } else {
+        console.log("Thêm thành viên không thành công!");
+      }
+      setWaitAddMember(false);
+    }
+  };
+
   return (
-    <div className=" relative p-4 text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md min-w-40rem w-1/2">
+    <div
+      onClick={(e) => setSuggestResult(false)}
+      className=" relative p-4 text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md min-w-40rem w-1/2"
+    >
       <div className="w-full">
         <div
           onClick={action}
@@ -27,49 +82,65 @@ function FormAddNewMember({ action }) {
         <h5 className="text-md font-bold w-fit">
           Mời người khác vào cùng làm việc
         </h5>
-        <Input
-          placeholder={"Nhập email hoặc tên, ví dụ: huutai@gmail.com"}
-          className={"h-6 mt-4"}
-          value={emailOrName}
-          onChange={(e) => setEmailOrName(e.target.value)}
-          onFocus={(e) => setSuggestResult(true)}
-          onBlur={(e) => setSuggestResult(false)}
-        />
-        {suggestResult && (
-          <Fade>
-            <div
-              style={{ width: "calc(100% - 2rem)" }}
-              className="z-10  absolute mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700"
+        <div className="flex  mt-4 justify-between items-center">
+          <Input
+            placeholder={"Nhập email hoặc tên, ví dụ: huutai@gmail.com"}
+            className={"h-6  rounded-md"}
+            value={emailOrName}
+            onChange={(e) => setEmailOrName(e.target.value)}
+            onFocus={(e) => {
+              e.stopPropagation();
+              setSuggestResult(true);
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          {!waitAddMember && (
+            <button
+              onClick={handleAddMember}
+              className="reset h-8 w-32 ml-2 pl-4 pr-4 rounded-md text-md hover:brightness-125 cursor-pointer bg-light-third dark:bg-dark-third "
             >
-              <ul
-                className="py-2 w-full text-sm text-gray-700 dark:text-gray-200"
-                aria-labelledby="dropdownDefaultButton"
-              >
-                {listEmail.map((email, index) => {
-                  return (
-                    <li
-                      key={index}
-                      onClick={(e) => setEmailOrName(email)}
-                      className="block px-4 py-2 w-full hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >
-                      {email}
-                    </li>
-                  );
-                })}
-                {listName.map((name, index) => {
-                  return (
-                    <li
-                      key={index}
-                      onClick={(e) => setEmailOrName(email)}
-                      className="block px-4 py-2 w-full hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >
-                      {name}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </Fade>
+              Thêm
+            </button>
+          )}
+          {waitAddMember && (
+            <button className="reset h-8 w-32  ml-2 pl-4 pr-4 rounded-md text-md hover:brightness-125 cursor-pointer bg-light-third dark:bg-dark-third ">
+              <CircularProgress
+                sx={{
+                  color: "#ffff",
+                  marginTop: "4px",
+                  height: "20px!important",
+                  width: "20px!important",
+                }}
+              />
+            </button>
+          )}
+        </div>
+        {suggestResult && (
+          <div
+            style={{ width: "calc(100% - 2rem)" }}
+            className="z-10  absolute mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700"
+          >
+            <ul className="py-2 w-full text-sm text-gray-700 dark:text-gray-200">
+              {listUser.map((user, index) => {
+                return (
+                  <li
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSuggestResult(false);
+                      setUserSelect(user);
+                      setEmailOrName(
+                        user.email ? user.email : user?.displayName
+                      );
+                    }}
+                    className="block px-4 py-2 w-full hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    {user.email ? user.email : user?.displayName}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         )}
         <div className="justify-start items-center flex mt-3">
           <div className="justify-center items-center mr-2 flex p-2 rounded-full bg-light-third dark:bg-dark-third">

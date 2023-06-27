@@ -13,11 +13,13 @@ import { ToastContainer, toast } from "react-toastify";
 import ModalCustom from "./Component/Modal";
 import { Slide } from "react-awesome-reveal";
 import FormAddNewProject from "./Component/FormAddNewProject";
+import LoadInit from "./Component/LoadInit";
 
 function App() {
   const [openModalAddNewProject, setOpenModalAddNewProject] = useState(false);
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.reducer.theme);
+  const [waitLoad, setWaitLoad] = useState(true);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -67,8 +69,27 @@ function App() {
   //   }
   // }, []);
 
+  useEffect(() => {
+    const timeOut = () => {
+      setWaitLoad(false);
+    };
+
+    let timeoutId = null;
+
+    timeoutId = setTimeout(timeOut, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   return (
     <div className="transition-all overflow-hidden bg-light-primary dark:bg-dark-primary">
+      {waitLoad && (
+        <div className="z-50 fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-light-primary dark:bg-dark-primary ">
+          <LoadInit />
+        </div>
+      )}
       {/* <Button onClick={handleThemeSwitch}>Click</Button> */}
       <Router>
         <Routes>
@@ -80,7 +101,6 @@ function App() {
             }
           />
           <Route exact path="/sign" element={<Sign />} />
-          {/* <Route exact path="/test" element={<Test />} /> */}
         </Routes>
       </Router>
       <ToastContainer />(

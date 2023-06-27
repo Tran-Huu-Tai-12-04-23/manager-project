@@ -13,6 +13,7 @@ function Input({
   value,
   type = "text",
   onKeypressEnter = (e) => {},
+  onClick = () => {},
 }) {
   const [Type, setType] = useState(type);
 
@@ -22,6 +23,7 @@ function Input({
   return (
     <div className={`w-${width} relative`}>
       <input
+        onClick={onClick}
         onFocus={onFocus}
         onBlur={onBlur}
         type={Type}

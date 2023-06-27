@@ -3,6 +3,16 @@ import { useEffect, useState } from "react";
 import { projectDetailAction } from ".././Store/projectDetailSlice";
 import { useDispatch } from "react-redux";
 
+import { AiOutlineEdit } from "react-icons/ai";
+import { CiMenuKebab, CiTrash } from "react-icons/ci";
+import ModalConfirmRemove from "./ModalConfirmRemove";
+import Service from "../Service";
+
+import { toast } from "react-toastify";
+import { projectAction } from "../Store/projectSlice";
+
+import FormAddNewProject from "./FormAddNewProject";
+
 function compareDatesWithoutTime(date1, date2) {
   const year1 = date1.getFullYear();
   const month1 = date1.getMonth();
@@ -31,12 +41,26 @@ function compareDatesWithoutTime(date1, date2) {
   }
 }
 
-function CardProject({ data, setActive }) {
+function CardProject({
+  data,
+  setActive,
+  activeEdit = false,
+  setEditProject,
+  setProjectSelect = () => {},
+  handleEditProject = () => {},
+  projectSelect,
+}) {
+  const [showEdit, setShowEdit] = useState(false);
   const [date, setDate] = useState(new Date(data.date_end));
   const [color, setColor] = useState("design");
   const [late, setLate] = useState(false);
   const [numberDay, setNumberDay] = useState(0);
+  const [modalConfirmRemoveProject, setModalConfirmRemoveProject] =
+    useState(false);
+  const [openModalEditProject, setOpenModalEditProject] = useState(false);
+
   const dispatch = useDispatch();
+
   useEffect(() => {
     const timeDiff = Math.abs(date - new Date());
     const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
@@ -55,9 +79,53 @@ function CardProject({ data, setActive }) {
     dispatch(projectDetailAction.initProjectDetail(data));
     setActive(1);
   };
+  const handleRemoveProject = async () => {
+    const result = await Service.remove(
+      "/project/remove-soft-project",
+      `/?projectId=${projectSelect._id}`
+    );
+
+    if (result.status === true) {
+      toast.success(result.message, {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+
+      dispatch(projectAction.removeProject({ projectId: projectSelect._id }));
+      setProjectSelect(null);
+      setModalConfirmRemoveProject(false);
+      setEditProject(false);
+    } else {
+      toast.error("Xóa không thành công!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+    }
+  };
 
   return (
-    <div className="w-full h-fit dark:bg-dark-second bg-light-second p-2 rounded-md">
+    <div
+      onMouseEnter={(e) => setShowEdit(true)}
+      onMouseLeave={(e) => setShowEdit(false)}
+      className={`relative w-full h-fit dark:bg-dark-second bg-light-second p-2 rounded-md ${
+        activeEdit ? "z-50" : ""
+      }`}
+    >
+      {openModalEditProject && (
+        <div className="fixed z-50 top-0 right-0 left-0 bottom-0">
+          <FormAddNewProject
+            data={projectSelect}
+            type="edit"
+            action={(e) => setOpenModalEditProject(false)}
+          ></FormAddNewProject>
+        </div>
+      )}
+      <ModalConfirmRemove
+        open={modalConfirmRemoveProject}
+        setOpen={setModalConfirmRemoveProject}
+        action={handleRemoveProject}
+      ></ModalConfirmRemove>
+
       <h5 className="font-family text-md capitalize">{data.name}</h5>
       <h5 className="font-family text-xs mt-2 mb-2 text-blur-light dark:text-blur-dark">
         Ngày hết hạn :
@@ -117,6 +185,46 @@ function CardProject({ data, setActive }) {
       >
         Chi tiết
       </button>
+      {showEdit && (
+        <CiMenuKebab
+          className="absolute right-2 top-2 text-xl hover:text-red-500 cursor-pointer"
+          onClick={(e) => {
+            handleEditProject();
+            if (!projectSelect) {
+              setProjectSelect(data);
+            } else {
+              setProjectSelect(null);
+            }
+          }}
+        />
+      )}
+
+      {activeEdit && (
+        <div
+          className="absolute w-fit top-0 "
+          style={{
+            left: "102%",
+          }}
+        >
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              setModalConfirmRemoveProject(true);
+            }}
+            className="hover:text-red-400 cursor-pointer w-full  from-left-animation mb-1 border-dashed  rounded-md border-1 p-1 pl-6 pr-6 dark:border-blur-dark border-blur-light dark:bg-dark-third bg-light-third"
+          >
+            <CiTrash className="text-xl" />
+          </div>
+          <div
+            onClick={(e) => {
+              setOpenModalEditProject(true);
+            }}
+            className="w-full  hover:text-primary cursor-pointer from-left-animation animation-delay-150 dark:bg-dark-third  rounded-md bg-light-third p-1 pl-6 pr-6"
+          >
+            <AiOutlineEdit className="text-xl" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

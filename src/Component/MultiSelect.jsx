@@ -45,7 +45,7 @@ function MultiSelect({
         })
       );
     };
-    initMember();
+    if (dataLogin.id) initMember();
   }, [dataLogin]);
 
   useEffect(() => {}, [searchNameMember]);
