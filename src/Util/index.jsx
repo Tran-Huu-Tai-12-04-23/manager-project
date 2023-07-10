@@ -48,6 +48,22 @@ class Util {
     );
     return JSON.parse(decrypted);
   };
+
+  compareDate(dateOne, dateSecond) {
+    const date1 = new Date(dateOne);
+    const date2 = new Date(dateSecond);
+    const day1 = date1.getDate();
+    const month1 = date1.getMonth();
+    const year1 = date1.getFullYear();
+    const day2 = date2.getDate();
+    const month2 = date2.getMonth();
+    const year2 = date2.getFullYear();
+    if (year1 === year2 && month1 === month2 && day1 === day2) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 export default new Util();

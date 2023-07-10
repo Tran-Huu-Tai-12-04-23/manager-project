@@ -1,6 +1,4 @@
-import { v4 as uuid } from "uuid";
 import Board from "./Board";
-import { useSelector } from "react-redux";
 import Note from "../Note";
 
 function MainManagerProject({ activeTab }) {

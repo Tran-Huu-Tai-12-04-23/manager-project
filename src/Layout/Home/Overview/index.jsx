@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState , memo} from "react";
 
 import { LuHistory } from "react-icons/lu";
 import { BsPersonWorkspace } from "react-icons/bs";
@@ -11,22 +11,9 @@ import WaitLoad from "../../../Component/WaitLoad";
 
 function Overview({ setOpenModalAddNewProject, setActive }) {
   const projects = useSelector((state) => state.reducer.projects);
-  const [waitLoad, setWaitLoad] = useState(true);
+  const [waitLoad, setWaitLoad] = useState(false);
   const [editProject, setEditProject] = useState(false);
   const [projectSelect, setProjectSelect] = useState(null);
-
-  useEffect(() => {
-    const timeOut = () => {
-      setWaitLoad(false);
-    };
-    let timeoutId = null;
-    if (projects) {
-      timeoutId = setTimeout(timeOut, 1000);
-    }
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [projects]);
 
   return (
     <div className="p-4 w-full">
@@ -110,4 +97,4 @@ function Overview({ setOpenModalAddNewProject, setActive }) {
   );
 }
 
-export default Overview;
+export default memo(Overview);

@@ -4,8 +4,23 @@ const taskSlice = createSlice({
   name: "tasks",
   initialState: [],
   reducers: {
+    
     init: (state, action) => {
-      return [...action.payload];
+      const {tasks} = action.payload;
+      return [...tasks];
+    },
+    updateDate: (state, action) => {
+      const {newDate, id} = action.payload;
+      return state.map((task) => {
+        if (task._id === id) {
+          console.log("hello");
+          console.log(newDate);
+          return {
+            ...task, createdAt: newDate
+          }
+        }
+        return task;
+      })
     },
     changeOrder: (state, action) => {
       const { taskId, newOrder } = action.payload;

@@ -8,17 +8,18 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 import { Fade } from "react-awesome-reveal";
-
+import {BsTrash} from 'react-icons/bs'
 import Input from "../../../Component/Input";
-import { Avatar } from "@mui/material";
+import { Avatar, Badge } from "@mui/material";
 
 import { useDispatch, useSelector } from "react-redux";
 import { themeAction } from "../../../Store/themeSlice";
 
-function Header() {
+function Header({setActive = () => {}}) {
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.reducer.theme);
   const dataLogin = useSelector((state) => state.reducer.dataLogin);
+  const numberTrash = useSelector((state) => state.reducer.numberTrash);
 
   const handleThemeSwitch = () => {
     dispatch(themeAction.switchTheme(theme == "dark" ? "light" : "dark"));
@@ -64,9 +65,11 @@ function Header() {
             onClick={handleThemeSwitch}
           ></DarkModeIcon>
         )}
-        <SettingsIcon></SettingsIcon>
-        <NotificationsNoneIcon className="ml-4 mr-4"></NotificationsNoneIcon>
-        <h5 className="font-bold font-family  text-xs mr-2 text-primary">
+        <SettingsIcon className="mr-2"></SettingsIcon>
+        <Badge badgeContent={numberTrash} color="primary" onClick={e => setActive(6)}>
+          <BsTrash className="hover:text-primary cursor-pointer text-xl"></BsTrash>
+        </Badge>
+        <h5 className="ml-6 font-bold font-family  text-xs mr-2 text-primary">
           Xin chào , {dataLogin?.displayName}
         </h5>
         <Avatar

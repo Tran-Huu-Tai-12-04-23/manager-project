@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const projectSlice = createSlice({
   name: "task",
-  initialState: null,
+  initialState: [],
   reducers: {
     init: (state, action) => {
       if (Array.isArray(action.payload)) {
@@ -45,6 +45,18 @@ const projectSlice = createSlice({
       const { projectId } = action.payload;
       return state.filter((project) => project._id !== projectId);
     },
+
+    updateProject: (state, action) => {
+      const {projectId, newProject} = action.payload;
+      return state.map( project => {
+        if( project._id === projectId) {
+          return {
+            ... newProject
+          }
+        }
+        return project;
+      })
+    }
   },
 });
 

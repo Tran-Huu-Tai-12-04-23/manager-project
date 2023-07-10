@@ -10,6 +10,7 @@ import Service from "../Service";
 
 import { toast } from "react-toastify";
 import { projectAction } from "../Store/projectSlice";
+import { numberTrashAction } from "../Store/numberTrashSlice";
 
 import FormAddNewProject from "./FormAddNewProject";
 
@@ -64,10 +65,8 @@ function CardProject({
   useEffect(() => {
     const timeDiff = Math.abs(date - new Date());
     const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
     setNumberDay(daysDiff);
-    const checkDate = compareDatesWithoutTime(date, new Date());
-    console.log(checkDate);
+    const checkDate = compareDatesWithoutTime(data.date_end ? new Date(data.data_end): new Date() , new Date());
     if (checkDate === 2) {
       setLate(true);
     } else {
@@ -95,6 +94,7 @@ function CardProject({
       setProjectSelect(null);
       setModalConfirmRemoveProject(false);
       setEditProject(false);
+      dispatch(numberTrashAction.increase({number: 1}));
     } else {
       toast.error("Xóa không thành công!", {
         position: toast.POSITION.TOP_CENTER,
@@ -203,7 +203,7 @@ function CardProject({
         <div
           className="absolute w-fit top-0 "
           style={{
-            left: "102%",
+            right: "0%",
           }}
         >
           <div

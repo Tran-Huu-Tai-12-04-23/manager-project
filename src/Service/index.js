@@ -4,6 +4,10 @@ class Service {
   constructor() {
     this.url = "http://localhost:3000";
   }
+
+  getUrlImageServer(path) {
+    return this.url + path;
+  }
   async callApi(link, data) {
     link = this.url + link;
     try {
@@ -27,13 +31,13 @@ class Service {
   async update(link, data) {
     link = this.url + link;
     try {
-      const response = await axios.put(link, { ...data });
+      const response = await axios.put(link, data);
       return response;
     } catch (error) {
       return null;
     }
   }
-  async remove(link, query) {
+  async remove(link, query='') {
     const url = this.url + link + query;
     try {
       const response = await axios.delete(url);

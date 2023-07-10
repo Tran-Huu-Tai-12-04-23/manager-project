@@ -16,6 +16,8 @@ import { useDispatch } from "react-redux";
 import { projectDetailAction } from "../Store/projectDetailSlice";
 import { projectAction } from "../Store/projectSlice";
 
+import Util from '../Util'
+
 const members = [
   { title: "The Shawshank Redemption", year: 1994 },
   { title: "The Godfather", year: 1972 },
@@ -27,9 +29,9 @@ const members = [
 ];
 
 function FormAddNewProject({ action = (e) => {}, type, data }) {
-  const [date, setDate] = useState(new Date());
-  const [title, setTitle] = useState(data?.name);
-  const [description, setDescription] = useState(data?.description);
+  const [date, setDate] = useState(data ?  new Date(data.date_end ):  new Date());
+  const [title, setTitle] = useState(data?.name ? data.name : '');
+  const [description, setDescription] = useState(data?.description ? data.description : '');
   const [memberSelected, setMemberSelected] = useState([]);
   const [document, setDocument] = useState([]);
   const dataLogin = useSelector((state) => state.reducer.dataLogin);
@@ -145,6 +147,60 @@ function FormAddNewProject({ action = (e) => {}, type, data }) {
       });
     }
   };
+
+  const handleUpdateProject = async () => {
+    const check = verifyDataBeforeSend();
+    if (check.type === false) {
+      toast.warning(check.message, {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      return;
+    } 
+
+    console.log(document.length > 0)
+    let checkUpdateData = title === data.name && description === data.description && Util.compareDate(date , data.date_end)
+    if( checkUpdateData && !document.length === 0) {
+      toast.warning("Ban chua thay doi du lieu cua du an!!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      return;
+    }
+    const listFileDocument = document.map((doc) => doc.data);
+    const formData = new FormData();
+    formData.append("name", title);
+    formData.append("createBy", dataLogin.id);
+    formData.append("description", description);
+    formData.append("dateEnd", date);
+    formData.append("projectId", data._id);
+    listFileDocument.forEach((file) => {
+      formData.append("file", file);
+    });
+
+    const result = await Service.update(
+      "/project/edit-project",
+      formData
+    );
+
+    if (result.data.status === true) {
+      const newInfoProject = JSON.parse(result.data.data);
+      dispatch(projectAction.updateProject({  projectId: data._id, newProject:  newInfoProject}));
+      toast.success(result.data.message, {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      clearForm();
+      action();
+    } else {
+      toast.error("Tạo mới không thành công!", {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+    }
+
+
+  }
 
   return (
     <div
@@ -326,18 +382,38 @@ function FormAddNewProject({ action = (e) => {}, type, data }) {
         </div>
       </div>
       <div className="justify-center items-center flex w-full ">
-        <Button
-          sx={{
-            marginLeft: "auto",
-            marginRight: "auto",
-            marginTop: "1rem",
-            fontSize: ".75rem",
-            marginBottom: "1rem",
-          }}
-          onClick={handleAddNewInFoProject}
-        >
-          Thêm
-        </Button>
+        {
+          type !== 'edit' && (
+            <Button
+            sx={{
+              marginLeft: "auto",
+              marginRight: "auto",
+              marginTop: "1rem",
+              fontSize: ".75rem",
+              marginBottom: "1rem",
+            }}
+            onClick={handleAddNewInFoProject}
+          >
+            Thêm
+          </Button>
+          )
+        }
+        {
+          type === 'edit' && (
+            <Button
+            sx={{
+              marginLeft: "auto",
+              marginRight: "auto",
+              marginTop: "1rem",
+              fontSize: ".75rem",
+              marginBottom: "1rem",
+            }}
+            onClick={handleUpdateProject}
+          >
+            Luu lai
+          </Button>
+          )
+        }
       </div>
     </div>
   );

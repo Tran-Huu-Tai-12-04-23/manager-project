@@ -5,7 +5,7 @@ import CodePreview from "./CodePreview";
 import { Button } from "@mui/material";
 
 const TextEditor = ({ setDescription, description }) => {
-  const [data, setData] = useState(description);
+
   const editorConfig = {
     toolbar: {
       items: [
@@ -35,7 +35,6 @@ const TextEditor = ({ setDescription, description }) => {
 
   const handleEditorChange = (event, editor) => {
     const newData = editor.getData();
-    setData(newData);
     setDescription(newData);
   };
 
@@ -44,7 +43,7 @@ const TextEditor = ({ setDescription, description }) => {
       <CKEditor
         editor={Editor}
         config={editorConfig}
-        data={data}
+        data={description}
         onChange={handleEditorChange}
       />
     </div>

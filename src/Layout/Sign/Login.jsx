@@ -69,7 +69,7 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
               displayName,
             });
           }
-
+          console.log(user)
           const result = await Service.callApi("/user/get-id", {
             email: email,
             displayName: displayName,

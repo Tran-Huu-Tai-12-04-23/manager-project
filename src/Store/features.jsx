@@ -4,6 +4,8 @@ import { taskReducer } from "./taskSlice";
 import { loginReducer } from "./dataLoginSlice";
 import { projectReducer } from "./projectSlice";
 import { projectDetailReducer } from "./projectDetailSlice";
+import { projectTrashReducer } from "./projectTrashSlice";
+import { numberTrashReducer } from "./numberTrashSlice";
 
 const rootReducer = combineReducers({
   theme: themeReducer,
@@ -11,6 +13,8 @@ const rootReducer = combineReducers({
   dataLogin: loginReducer,
   projects: projectReducer,
   projectDetail: projectDetailReducer,
+  projectTrash: projectTrashReducer,
+  numberTrash: numberTrashReducer
 });
 
 export default rootReducer;

@@ -14,11 +14,14 @@ import ModalCustom from "./Component/Modal";
 import { Slide } from "react-awesome-reveal";
 import FormAddNewProject from "./Component/FormAddNewProject";
 import LoadInit from "./Component/LoadInit";
+import Service from "./Service";
+import { numberTrashAction } from "./Store/numberTrashSlice";
 
 function App() {
   const [openModalAddNewProject, setOpenModalAddNewProject] = useState(false);
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.reducer.theme);
+  const dataLogin = useSelector((state) => state.reducer.dataLogin);
   const [waitLoad, setWaitLoad] = useState(true);
 
   useEffect(() => {
@@ -43,6 +46,8 @@ function App() {
   const notify = () => {
     toast("Đây là thông báo đến laptop/PC!");
   };
+
+
 
   // useEffect(() => {
   //   // Kiểm tra xem trình duyệt hỗ trợ Push Notifications
@@ -82,6 +87,18 @@ function App() {
       clearTimeout(timeoutId);
     };
   }, []);
+
+  useEffect(() => {
+    const initNumberTrash = async () => {
+      const result = await Service.getDataFromApi(`/project/count-number-project-trash/?userId=${dataLogin.id}`);
+      if( result.status === true ) {
+        dispatch(numberTrashAction.initNumberTrash({number: result.data}));
+      }
+    };
+    if( dataLogin.isLogin ) {
+      initNumberTrash();
+    }
+  }, [dataLogin])
 
   return (
     <div className="transition-all overflow-hidden bg-light-primary dark:bg-dark-primary">

@@ -7,6 +7,7 @@ import Calender from "../../Component/Calender";
 import Statistic from "./Statistic";
 import Overview from "./Overview";
 import Setting from "./Setting";
+import Trash from "./Trash";
 
 import { useSelector, useDispatch } from "react-redux";
 import { projectAction } from "../../Store/projectSlice";
@@ -32,14 +33,17 @@ const Home = ({ setOpenModalAddNewProject }) => {
         `/?user_id=${dataLogin.id}`
       );
 
-      dispatch(projectAction.init(JSON.parse(result.data)));
+      if( result.status === true ) {
+        dispatch(projectAction.init(JSON.parse(result.data)));
+      }
+
     };
 
     if (dataLogin.id) intiProjects();
   }, []);
 
   return (
-    <div className="dark:text-white text-black font-primary min-h-screen w-screen overflow-hidden  flex justify-start">
+    <div className="dark:text-white text-black font-primary min-h-screen w-screen overflow-hidden flex justify-start">
       <MenuSideBar active={active} setActive={setActive}></MenuSideBar>
       {active === 1 && (
         <ManagerProject
@@ -48,7 +52,7 @@ const Home = ({ setOpenModalAddNewProject }) => {
       )}
       {active !== 1 && (
         <div className="w-full">
-          {active !== 1 && <Header></Header>}
+          {active !== 1 && <Header setActive={setActive}></Header>}
           {active === 0 && (
             <Overview
               setActive={setActive}
@@ -57,7 +61,7 @@ const Home = ({ setOpenModalAddNewProject }) => {
           )}
 
           {active === 2 && (
-            <div className="">
+            <div className="w-full">
               <h1 className="pt-4 pl-0  ml-4 text-md border-b-4 border-solid border-primary w-fit mb-4 font-bold font-family">
                 Lịch hoạt động
               </h1>
@@ -67,6 +71,12 @@ const Home = ({ setOpenModalAddNewProject }) => {
 
           {active === 3 && <Statistic></Statistic>}
           {active === 4 && <Setting></Setting>}
+          {
+            active === 6 && (
+              <Trash
+              ></Trash>
+            )
+          }
         </div>
       )}
     </div>
