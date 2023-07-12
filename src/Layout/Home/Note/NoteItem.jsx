@@ -35,7 +35,7 @@ function NoteItem({note, dataLogin, setNotes=() => {}}) {
   const handleRemoveNote = async () => {
     if( dataLogin.id === note?.createdBy?._id) {
       console.log(note?.createdBy._id);
-      const result = await Service.remove(`/project/remove-note/?noteId=${note?._id}`);
+      const result = await Service.remove(`/note/remove-note/?noteId=${note?._id}`);
       if(result.status === true) {
         toast.success("Xóa ghi chú thành công!", {
           position: toast.POSITION.TOP_CENTER,

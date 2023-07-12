@@ -32,7 +32,7 @@ function SubNavTaskCol({
       const idCol = dataCol._id;
 
       const result = await Service.remove(
-        "/project/remove-col",
+        "/col/remove-col",
         `/?colId=${idCol}&projectId=${projectDetail._id}`
       );
 

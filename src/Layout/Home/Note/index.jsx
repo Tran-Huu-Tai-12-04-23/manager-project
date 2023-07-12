@@ -34,7 +34,7 @@ function Note() {
       content: description
     }
     setWaitSaveNote(true);
-    const result = await Service.callApi('/project/create-new-note', data);
+    const result = await Service.callApi('/note/create-new-note', data);
 
     if( result.status === true ) {
       toast.success('Thêm ghi chú thành công!', {
@@ -54,7 +54,7 @@ function Note() {
   }
   const initNotes = async () => {
     setWaitLoading(true);
-    const result = await Service.getDataFromApi(`/project/get-all-notes/?projectId=${projectDetail._id}`);
+    const result = await Service.getDataFromApi(`/note/get-all-notes/?projectId=${projectDetail._id}`);
     if( result.status === true ) {
       setNotes(JSON.parse(result.data));
     }

@@ -48,7 +48,6 @@ function BoardTask() {
     });
   };
 
-  
   const onDragEnd = (result) => {
     const { res, dispatch, columns, setDataChangeTaskFromCol } = result;
     if (!res.destination) return;
@@ -111,7 +110,7 @@ function BoardTask() {
 
   const handleAddListTask = async () => {
     if (dataLogin.id && projectDetail._id && nameListTask) {
-      const result = await Service.callApi("/project/create-new-col", {
+      const result = await Service.callApi("/col/create-new-col", {
         userId: dataLogin.id,
         projectId: projectDetail._id,
         nameCol: nameListTask,
