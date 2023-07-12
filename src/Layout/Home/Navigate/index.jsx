@@ -31,7 +31,11 @@ function Navigate({ setActiveTab, activeTab }) {
   }, [tasks]);
   console.log(projectDetail);
   return (
-    <div className="w-full pr-4 grid grid-cols-1 gap-0 pt-4  border-b-1 border-blur-light dark:border-blur-dark border-solid">
+    <div
+    style={{
+      height: '8rem'
+    }}
+    className="w-full pr-4 grid grid-cols-1 gap-0 pt-4  border-b-1 border-blur-light dark:border-blur-dark border-solid">
       <div className="flex p-4 justify-between items-center">
         <div className="justify-start items-center flex  w-1/2">
           <Tooltip

@@ -12,7 +12,70 @@ const projectSlice = createSlice({
         return state; // or return a default value based on your requirements
       }
     },
-
+    addTaskToCol: (state, action) => {
+      const { task, colId, projectId } = action.payload;
+      const newState = state.map(project => {
+        if (project._id === projectId && Array.isArray(project.columns)) {
+          const updatedColumns = project.columns.map(col => {
+            if (col._id === colId) {
+              return {
+                ...col,
+                tasks: [...col.tasks, task]
+              };
+            }
+            return col;
+          });
+          return {
+            ...project,
+            columns: updatedColumns
+          };
+        }
+        return project;
+      });
+      return newState;
+    },
+    updateTask: (state, action ) => {
+      const { projectId, task} = action.payload;
+      return state.map( project => {
+        if( project._id === projectId) {
+          return {
+          ...project,
+            columns: project.columns.map( col => {
+              return {
+                ...col, tasks: col.tasks.map( t => {
+                  if( t._id === task._id ) {
+                    return task;
+                  }
+                  return t;
+                })
+              }
+            }) 
+          }
+        }
+        return project;
+      } )
+    },
+    removeTask: (state, action) => {
+      const {taskId, projectId} = action.payload;
+      return state.map( pro => {
+        if( pro._id === projectId) {
+          return {
+          ...pro,
+            columns: pro.columns.map( col => {
+              return {
+               ...col, tasks: col.tasks.filter( t => {
+                  if( t._id === taskId ) {
+                    return false;
+                  }
+                  return true;
+                })
+              }
+            }) 
+          }
+        }
+        return pro;
+      })
+    },
     addNewCol: (state, action) => {
       const { newCol, projectId } = action.payload;
       return state.map((project) => {
@@ -22,7 +85,6 @@ const projectSlice = createSlice({
         return { ...project };
       });
     },
-
     removeCol: (state, action) => {
       const { colId, projectId } = action.payload;
       return state.map((pro) => {

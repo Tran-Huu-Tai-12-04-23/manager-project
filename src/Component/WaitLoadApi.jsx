@@ -1,6 +1,6 @@
 
 const WaitLoadApi = ({}) => {
-    return <div className="loading">
+    return <div className="loading ">
             <span></span>
             <span></span>
             <span></span>

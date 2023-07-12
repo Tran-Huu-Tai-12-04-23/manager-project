@@ -16,7 +16,9 @@ function Overview({ setOpenModalAddNewProject, setActive }) {
   const [projectSelect, setProjectSelect] = useState(null);
 
   return (
-    <div className="p-4 w-full">
+    <div className="p-4 w-full " style={{
+      height: 'calc(100% - 4rem)',
+    }}>
       {editProject && (
         <div
           className="fixed transition-all  top-0 left-0 right-0 bottom-0  z-30"

@@ -44,15 +44,20 @@ const DayOfWeek  = ({
           </div>
   
           <div
-            className=" overflow-auto pt-5 pb-10 hidden-scroll h-full min-h-screen"
-            style={{}}
+            className=" overflow-auto  hidden-scroll h-full pt-5 pb-5"
+            style={{
+              height: 'calc(100vh - 13rem)',
+            }}
           >
             <Droppable key={`day-${day}`} droppableId={id} >
               {(provided, snapshot) => (
                 <div
-                  className=" flex flex-col flex-shrink-0 h-max min-h-screen"
+                  className=" flex flex-col flex-shrink-0 h-max "
                   ref={provided.innerRef}
                   {...provided.droppableProps}
+                  style={{
+                    minHeight: 'calc(100vh - 15rem)'
+                  }}
                 >
                   {tasks.map((task, index) => {
                     const dateTask = new Date(task.createdAt);

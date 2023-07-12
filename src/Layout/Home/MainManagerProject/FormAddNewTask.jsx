@@ -1,4 +1,4 @@
-import { useState, forwardRef } from "react";
+import { useState, forwardRef, useEffect } from "react";
 import { v4 as uuid } from "uuid";
 import Input from "../../../Component/Input";
 import { MdOutlineClose } from "react-icons/md";
@@ -14,14 +14,21 @@ import { toast } from "react-toastify";
 
 import { useDispatch } from "react-redux";
 import { projectDetailAction } from "../../../Store/projectDetailSlice";
+import { projectAction } from "../../../Store/projectSlice";
 
-function FormAddNewTask({ action = (e) => {}, dataCol }) {
+import WaitLoadApi from '../../../Component/WaitLoadApi'
+import { taskAction } from "../../../Store/taskSlice";
+
+function FormAddNewTask({ action = (e) => {}, dataCol , data, type='no-edit'}) {
   const dataLogin = useSelector((state) => state.reducer.dataLogin);
+  const projectDetail = useSelector((state) => state.reducer.projectDetail);
+  const projects = useSelector((state) => state.reducer.projects);
   const [date, setDate] = useState(new Date());
   const [description, setDescription] = useState("");
   const [name, setName] = useState("");
   const [priority, setPriority] = useState(0);
   const dispatch = useDispatch();
+  const [waitCallApi, setWaitCallApi] = useState(false);
 
   const listPriority = [
     { name: "Thấp", value: 0, color: "text-low", background: "bg-low" },
@@ -46,7 +53,7 @@ function FormAddNewTask({ action = (e) => {}, dataCol }) {
       message: "",
     };
   };
-
+  
   const handleAddNewTask = async () => {
     const check = verifyDataBeforeSend();
 
@@ -67,26 +74,32 @@ function FormAddNewTask({ action = (e) => {}, dataCol }) {
         colId: dataCol._id,
         priority,
       };
+      setWaitCallApi(true);
       const result = await Service.callApi(
-        "/project/create-new-task",
+        "/task/create-new-task",
         formData
       );
 
       if (result.status === true) {
         const newTask = JSON.parse(result.data);
-        console.log(newTask);
         dispatch(
           projectDetailAction.addTaskToCol({
             task: newTask,
             colId: dataCol._id,
           })
         );
+        
+        dispatch( projectAction.addTaskToCol({
+          task:newTask, colId: dataCol._id,projectId: projectDetail._id
+        }));
+
         toast.success(result.message, {
           position: toast.POSITION.TOP_CENTER,
           autoClose: 2000,
         });
         action();
       }
+      setWaitCallApi(false);
     } else {
       toast.error("Tạo mới không thành công!", {
         position: toast.POSITION.TOP_CENTER,
@@ -95,11 +108,59 @@ function FormAddNewTask({ action = (e) => {}, dataCol }) {
     }
   };
 
+  const handleUpdateTask = async () => {
+    if( name === data.name  && date.toISOString() === data.createdAt && description === data.description) {
+      toast.warning('Bạn chưa thay đổi nội dung!', {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+      return ;
+    }
+
+    const formData = {
+      taskId: data._id,
+      name,
+      description,
+      date,
+      priority,
+    };
+    setWaitCallApi(true);
+    const  result = await Service.update('/task/update', formData);
+    if( result.data.status === true  ) {
+      const newTask = JSON.parse(result.data.data);
+      dispatch(projectAction.updateTask({projectId : projectDetail._id, task: newTask}));
+      dispatch(projectDetailAction.updateTask({task: newTask}));
+      dispatch(taskAction.update({task: newTask}));
+      toast.success('Cập nhật thành công!', {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      })
+    }else {
+      toast.error('Cập nhật thất bại!', {
+        position: toast.POSITION.TOP_CENTER,
+        autoClose: 2000,
+      });
+    }
+    setWaitCallApi(false);
+
+  }
+
+
   const ExampleCustomInput = forwardRef(({ value, onClick }, ref) => (
     <div ref={ref} onClick={onClick}>
       <MdOutlineEditCalendar className="example-custom-input hover:text-primary text-xl cursor-pointer mt-2"></MdOutlineEditCalendar>
     </div>
   ));
+
+  useEffect(() => {
+    if( data) {
+      setPriority(data.priority);
+      setName(data.name);
+      setDate(new Date(data.createdAt));
+      setDescription(data.description);
+    }
+  }, [data])
+
   return (
     <div
       style={{
@@ -110,6 +171,12 @@ function FormAddNewTask({ action = (e) => {}, dataCol }) {
       }}
       className="relative p-4 text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md min-w-40rem"
     >
+      {
+        waitCallApi && 
+        <div className=" fixed flex justify-center items-center backdrop-blur-xl z-50 top-0 bottom-0 right-0 left-0">
+          <WaitLoadApi/>
+        </div>
+      }
       <div
         onClick={action}
         className="p-2 rounded-full hover:bg-blur-light hover:dark:bg-blur-dark cursor-pointer w-fit absolute right-2 top-2"
@@ -117,7 +184,9 @@ function FormAddNewTask({ action = (e) => {}, dataCol }) {
         <MdOutlineClose></MdOutlineClose>
       </div>
       <h1 className="text-md border-b-4 border-solid border-primary rounded-sm w-fit">
-        Nhập nội dung cần làm
+        {
+          type === 'no-edit' ? 'Nhập nội dung cần làm' : 'Chỉnh sửa nội dung công việc'
+        }
       </h1>
       <div
         className=" overflow-auto pt-2 custom-scrollbar bd-radius-scroll pl-2 pr-2 pb-10"
@@ -173,20 +242,39 @@ function FormAddNewTask({ action = (e) => {}, dataCol }) {
         </div>
       </div>
       <div className="justify-center items-center flex w-full ">
-        <Button
-          sx={{
-            marginLeft: "auto",
-            marginRight: "auto",
-            marginTop: "1rem",
-            fontSize: ".75rem",
-          }}
-          onClick={async (e) => {
-            await handleAddNewTask();
-            action();
-          }}
-        >
-          Lưu lại
-        </Button>
+        {
+          type === 'no-edit' && 
+          <Button
+            sx={{
+              marginLeft: "auto",
+              marginRight: "auto",
+              marginTop: "1rem",
+              fontSize: ".75rem",
+            }}
+            onClick={async (e) => {
+              await handleAddNewTask();
+              action();
+            }}
+          >
+            Lưu lại
+          </Button>
+        }
+        {
+          type=== 'edit' && <Button
+            sx={{
+              marginLeft: "auto",
+              marginRight: "auto",
+              marginTop: "1rem",
+              fontSize: ".75rem",
+            }}
+            onClick={async (e) => {
+              await handleUpdateTask();
+              action();
+            }}
+          >
+            Lưu
+          </Button>
+        }
       </div>
     </div>
   );

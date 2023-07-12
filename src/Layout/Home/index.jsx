@@ -51,7 +51,7 @@ const Home = ({ setOpenModalAddNewProject }) => {
         ></ManagerProject>
       )}
       {active !== 1 && (
-        <div className="w-full">
+        <div className="w-full h-screen" >
           {active !== 1 && <Header setActive={setActive}></Header>}
           {active === 0 && (
             <Overview

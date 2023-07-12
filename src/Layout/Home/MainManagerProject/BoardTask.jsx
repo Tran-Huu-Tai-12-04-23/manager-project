@@ -34,34 +34,21 @@ function BoardTask() {
   const [projectId, setProjectId] = useState(null);
   const [dataCol, setDataCol] = useState(null);
   const [dataChangeTaskFromCol, setDataChangeTaskFromCol] = useState(null);
+  const [taskSelectToEdit, setTaskSelectToEdit] = useState(null);
 
   const updateTaskInDatabase = async (
     idColTaskSource,
     idColTaskDes,
     draggableId
   ) => {
-    const result = await Service.callApi("/project/change-col-for-task", {
+    const result = await Service.callApi("/task/change-col-for-task", {
       colIdSource: idColTaskSource,
       colIdDes: idColTaskDes,
       taskId: draggableId,
     });
-    console.log(result);
   };
 
-  useEffect(() => {
-    const handleUpdateDb = async () => {
-      const result = await updateTaskInDatabase(
-        dataChangeTaskFromCol.idColTaskSource,
-        dataChangeTaskFromCol.idColTaskDes,
-        dataChangeTaskFromCol.draggableId
-      );
-
-      setDataChangeTaskFromCol(null);
-    };
-    if (dataChangeTaskFromCol) {
-      handleUpdateDb();
-    }
-  }, [dataChangeTaskFromCol]);
+  
   const onDragEnd = (result) => {
     const { res, dispatch, columns, setDataChangeTaskFromCol } = result;
     if (!res.destination) return;
@@ -150,21 +137,6 @@ function BoardTask() {
     }
   };
 
-  useEffect(() => {
-    const initTaskOfProject = async () => {
-      const result = await Service.getDataFromApi(
-        "/project/get-tasks",
-        `/?project_id=${projectDetail._id}`
-      );
-
-      if (result.status === true) {
-        dispatch(taskAction.init(JSON.parse(result.data)));
-      }
-    };
-
-    initTaskOfProject();
-  }, [projectDetail]);
-
   const handleSelectCol = (data) => {
     if (dataCol && data._id === dataCol._id) {
       setDataCol(null);
@@ -172,13 +144,48 @@ function BoardTask() {
       setDataCol(data);
     }
   };
+  
+  useEffect(() => {
+    const handleUpdateDb = async () => {
+      const result = await updateTaskInDatabase(
+        dataChangeTaskFromCol.idColTaskSource,
+        dataChangeTaskFromCol.idColTaskDes,
+        dataChangeTaskFromCol.draggableId
+      );
+
+      setDataChangeTaskFromCol(null);
+    };
+    if (dataChangeTaskFromCol) {
+      handleUpdateDb();
+    }
+  }, [dataChangeTaskFromCol]);
+
+  // useEffect(() => {
+  //   const initTaskOfProject = async () => {
+  //     const result = await Service.getDataFromApi(
+  //       "/task/get-tasks",
+  //       `/?project_id=${projectDetail._id}`
+  //     );
+
+  //     if (result.status === true) {
+  //       dispatch(taskAction.init(JSON.parse(result.data)));
+  //     }
+  //   };
+
+  //   initTaskOfProject();
+  // }, [projectDetail]);
+
+  useEffect(() => {
+    if( taskSelectToEdit ) {
+      setOpenModalAddNewTask(true);
+    }
+  }, [taskSelectToEdit])
 
   return (
     <>
       <Fade>
         <div
-          className="w-full h-full overflow-auto p-4 custom-scrollbar scrollable-div"
-          style={{ cursor: "grab" }}
+          className="w-full overflow-auto p-4 custom-scrollbar scrollable-div"
         >
           {dataCol && (
             <div
@@ -216,7 +223,7 @@ function BoardTask() {
                         {(provided, snapshot) => (
                           <div
                             style={{
-                              height: "calc(100vh - 14.1rem)",
+                              height: 'calc(100vh - 15rem)'
                             }}
                             className={`${
                               snapshot.draggingOverWith
@@ -252,6 +259,7 @@ function BoardTask() {
                                     data={task}
                                     index={index2}
                                     idNextCol={idNextCol}
+                                    setTaskSelectToEdit={setTaskSelectToEdit}
                                   ></TaskBoardItem>
                                 );
                               })}
@@ -322,12 +330,18 @@ function BoardTask() {
 
         <ModalCustom
           open={openModalAddNewTask}
-          setOpen={setOpenModalAddNewTask}
+          setOpen={e => {
+            setOpenModalAddNewTask(!openModalAddNewTask);
+            setTaskSelectToEdit(null);
+          }}
         >
           <FormAddNewTask
+          data={taskSelectToEdit}
+          type={taskSelectToEdit ? 'edit': 'no-edit'}
             action={(e) => {
               setOpenModalAddNewTask(false);
               setDataCol(null);
+              setTaskSelectToEdit(null);
             }}
             dataCol={dataCol}
           ></FormAddNewTask>

@@ -24,6 +24,7 @@ function ManagerProject({ setOpenModalAddNewProject }) {
       className="font-family flex justify-start  "
       style={{
         width: "calc(100% - 3.5rem)",
+        height: 'calc(100% - 4rem)',
       }}
     >
       <div

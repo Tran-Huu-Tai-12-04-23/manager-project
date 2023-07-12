@@ -120,7 +120,7 @@ function App() {
           <Route exact path="/sign" element={<Sign />} />
         </Routes>
       </Router>
-      <ToastContainer />(
+      <ToastContainer />
       <div
         className={`w-screen fixed top-0 left-0 bottom-0 right-0 z-20 ${
           openModalAddNewProject ? "opacity-100" : "opacity-0 hidden"
@@ -132,7 +132,7 @@ function App() {
           ></FormAddNewProject>
         </Slide>
       </div>
-      )
+      
     </div>
   );
 }

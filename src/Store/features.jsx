@@ -6,6 +6,7 @@ import { projectReducer } from "./projectSlice";
 import { projectDetailReducer } from "./projectDetailSlice";
 import { projectTrashReducer } from "./projectTrashSlice";
 import { numberTrashReducer } from "./numberTrashSlice";
+import { dateReducer } from "./dateCalender";
 
 const rootReducer = combineReducers({
   theme: themeReducer,
@@ -14,7 +15,8 @@ const rootReducer = combineReducers({
   projects: projectReducer,
   projectDetail: projectDetailReducer,
   projectTrash: projectTrashReducer,
-  numberTrash: numberTrashReducer
+  numberTrash: numberTrashReducer,
+  dateCalender: dateReducer
 });
 
 export default rootReducer;

@@ -14,13 +14,32 @@ const projectDetailSlice = createSlice({
       return { ...state };
     },
 
+    updateTask: (state, action) => {
+      const {task} = action.payload;
+      if( Array.isArray(state.columns) ) {
+        return {
+          ...state, columns: state.columns.map( col => {
+            return {
+              ...col, tasks: col.tasks.map( t => {
+                if( t._id === task._id ) {
+                  return task;
+                }
+                return t;
+              })
+            }
+          })
+        }
+      }
+      return state;
+    },
+
     removeTask: (state, action) => {
       const { taskId, colId } = action.payload;
       if (state) {
         return {
           ...state,
           columns: state.columns.map((col) => {
-            console.log(col);
+
             if (col._id === colId) {
               return {
                 ...col,
@@ -33,13 +52,29 @@ const projectDetailSlice = createSlice({
       }
       return state;
     },
+    removeTaskOnlyTaskId: (state, action) => {
+      const { taskId } = action.payload;
+      if (state) {
+        return {
+         ...state,
+          columns: state.columns.map((col) => {
+              return {
+                ...col,
+                tasks: col.tasks.filter((task) => task._id!== taskId),
+              };
+          }),
+        };
+      }
+      return state;
+    },
     addTaskToCol: (state, action) => {
       const { colId, task } = action.payload;
       if (state) {
         return {
           ...state,
           columns: state.columns.map((col) => {
-            if (col._id === colId) {
+            const isAlreadyTask = col.tasks.find(t => t.name === task.name);
+            if (col._id === colId && !isAlreadyTask) {
               return { ...col, tasks: [...col.tasks, task] };
             }
             return col;

@@ -13,14 +13,27 @@ const taskSlice = createSlice({
       const {newDate, id} = action.payload;
       return state.map((task) => {
         if (task._id === id) {
-          console.log("hello");
-          console.log(newDate);
           return {
             ...task, createdAt: newDate
           }
         }
         return task;
       })
+    },
+    update: (state, action) => {
+      const { task} = action.payload;
+      return state.map((t) => {
+        if (t._id === task._id) {
+          return {
+            ...task
+          }
+        }
+        return t;
+      })
+    },
+    removeTask: (state, action) => {
+      const {taskId} = action.payload;
+      return state.filter((task) => task._id!== taskId);
     },
     changeOrder: (state, action) => {
       const { taskId, newOrder } = action.payload;

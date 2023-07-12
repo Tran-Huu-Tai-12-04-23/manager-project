@@ -31,6 +31,7 @@ function Header({setActive = () => {}}) {
     <div
       style={{
         width: "calc(100% - 1rem)",
+        height: '4rem',
       }}
       className=" flex p-1 pl-4 pr-4 h-fit pt-2 pb-2 justify-between items-center border-b-1 border-solid border-blur-light dark:border-blur-dark"
     >
