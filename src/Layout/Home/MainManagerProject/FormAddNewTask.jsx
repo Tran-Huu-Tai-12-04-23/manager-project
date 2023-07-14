@@ -109,7 +109,7 @@ function FormAddNewTask({ action = (e) => {}, dataCol , data, type='no-edit'}) {
   };
 
   const handleUpdateTask = async () => {
-    if( name === data.name  && date.toISOString() === data.createdAt && description === data.description) {
+    if(priority === data.priority &&  name === data.name  && date.toISOString() === data.createdAt && description === data.description) {
       toast.warning('Bạn chưa thay đổi nội dung!', {
         position: toast.POSITION.TOP_CENTER,
         autoClose: 2000,

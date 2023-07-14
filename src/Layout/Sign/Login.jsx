@@ -47,12 +47,21 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
     const data = localStorage.getItem(Util.hashString("login"));
     if (data) {
       const decryptObject = Util.decryptObject(data, Util.secretKey);
-      dispatch(loginAction.login(decryptObject));
+      let dataLoginLocal = decryptObject;
+      if( decryptObject.id == undefined){
+        dataLoginLocal = {
+          ...decryptObject, id: decryptObject._id
+        }
+      }
+      
+      dispatch(loginAction.login(dataLoginLocal));
+      
       if (decryptObject.isLogin) {
         history("/");
       }
     }
   }, []);
+ 
 
   const loginWithGoogle = async () => {
     try {

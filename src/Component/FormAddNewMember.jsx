@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
+import { CircularProgress } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
-import Input from "./Input";
 import { AiOutlineLink } from "react-icons/ai";
+import {BsCheck2} from 'react-icons/bs';
 
+import Input from "./Input";
 import Service from "../Service/index";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
-import { CircularProgress } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { projectDetailAction } from "../Store/projectDetailSlice";
 
@@ -21,6 +22,9 @@ function FormAddNewMember({ action }) {
   const projectDetail = useSelector((state) => state.reducer.projectDetail);
   const [waitAddMember, setWaitAddMember] = useState(false);
   const dispatch = useDispatch();
+  const [waitCreateLink, setWaitCreateLink] = useState(false);
+  const [link, setLink] = useState('');
+  const [copy, setCopy] = useState(false);
 
   useEffect(() => {
     const initMember = async () => {
@@ -36,6 +40,15 @@ function FormAddNewMember({ action }) {
     initMember();
   }, [dataLogin]);
 
+  const handleCreateLink = async () => {
+    const data ={
+      userId : dataLogin.id, projectId: projectDetail._id, 
+    }
+    setWaitCreateLink(true);
+    const result = await Service.callApi('/link/create-link-invite', data);
+    setLink(result.link);
+    setWaitCreateLink(false);
+  }
   const handleAddMember = async () => {
     if (!userSelect) {
       toast.warning("Bạn chưa chọn!", {
@@ -49,7 +62,7 @@ function FormAddNewMember({ action }) {
         userId: userSelect._id,
         projectId: projectDetail._id,
       });
-      console.log(result);
+
       if (result.data.status === true) {
         toast.success("Thêm thành viên thành công!", {
           position: toast.POSITION.TOP_CENTER,
@@ -66,6 +79,10 @@ function FormAddNewMember({ action }) {
       setWaitAddMember(false);
     }
   };
+
+  const handleCopy = () => {
+    setCopy(true);
+  }
 
   return (
     <div
@@ -143,15 +160,52 @@ function FormAddNewMember({ action }) {
           </div>
         )}
         <div className="justify-start items-center flex mt-3">
-          <div className="justify-center items-center mr-2 flex p-2 rounded-full bg-light-third dark:bg-dark-third">
-            <AiOutlineLink className="text-xl"></AiOutlineLink>
-          </div>
-          <h5 className="text-xs font-bold w-fit">
-            Mời thêm thành viên vào thông qua liên kết này
-          </h5>
-          <button className="reset text-xs ml-auto rounded-md hover:brightness-125 bg-light-third dark:bg-dark-third p-2">
-            Tạo liên kết
-          </button>
+          {
+            !link && <>
+              <div className="justify-center items-center mr-2 flex p-2 rounded-full bg-light-third dark:bg-dark-third">
+                <AiOutlineLink className="text-xl"></AiOutlineLink>
+              </div>
+              <h5 className="text-xs font-bold w-fit">
+                Mời thêm thành viên vào thông qua liên kết này
+              </h5>
+              {
+                waitCreateLink && <button
+                className="reset w-24 text-xs ml-auto rounded-md hover:brightness-125 bg-light-third dark:bg-dark-third p-2">
+                  <CircularProgress 
+                  sx={{
+                    height: "16px!important",
+                    width: "16px!important",
+                  }}></CircularProgress>
+                </button>
+              }
+              {
+                !waitCreateLink &&  <button
+                onClick={handleCreateLink}
+                className="reset text-xs w-24 ml-auto rounded-md hover:brightness-125 bg-light-third dark:bg-dark-third p-2">
+                  Tạo liên kết
+                </button>
+              }
+             
+            </>
+          }
+          {
+            link && <>
+              <div className="justify-center items-center mr-2 flex p-2 rounded-full bg-light-third dark:bg-dark-third">
+                <AiOutlineLink className="text-xl"></AiOutlineLink>
+              </div>
+              <h5 className="underline text-xs font-bold w-fit text-primary">
+                {link}
+              </h5>
+              <CopyToClipboard text={link} onCopy={handleCopy}>
+                <button
+                  className="reset text-xs w-24 flex justify-center items-center ml-auto rounded-md hover:brightness-125 bg-light-third dark:bg-dark-third p-2">
+                    {
+                      !copy ? 'Sao chép' : <BsCheck2 className="text-green-400 scale-125"></BsCheck2> 
+                    }
+                  </button>
+              </CopyToClipboard>
+            </>
+          }
         </div>
       </div>
     </div>

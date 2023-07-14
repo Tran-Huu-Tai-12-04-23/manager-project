@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { themeAction } from "./Store/themeSlice";
-import { Button } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Home from "./Layout/Home";
 import Sign from "./Layout/Sign";
-import Test from "./Layout/Test";
+import AuthenAcceptMember from "./Layout/AuthenAcceptMember";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 
-import ModalCustom from "./Component/Modal";
 import { Slide } from "react-awesome-reveal";
 import FormAddNewProject from "./Component/FormAddNewProject";
 import LoadInit from "./Component/LoadInit";
 import Service from "./Service";
 import { numberTrashAction } from "./Store/numberTrashSlice";
+import Util from "./Util";
+import { loginAction } from "./Store/dataLoginSlice";
 
 function App() {
   const [openModalAddNewProject, setOpenModalAddNewProject] = useState(false);
@@ -23,6 +23,23 @@ function App() {
   const theme = useSelector((state) => state.reducer.theme);
   const dataLogin = useSelector((state) => state.reducer.dataLogin);
   const [waitLoad, setWaitLoad] = useState(true);
+  const [isInvite, setIsInvite] = useState({
+    process: false, token: ''
+  });
+
+  useEffect(() => {
+    const data = localStorage.getItem(Util.hashString("login"));
+    if (data) {
+      const decryptObject = Util.decryptObject(data, Util.secretKey);
+      let dataLoginLocal = decryptObject;
+      if( decryptObject.id == undefined){
+        dataLoginLocal = {
+          ...decryptObject, id: decryptObject._id
+        }
+      }
+      dispatch(loginAction.login(dataLoginLocal));
+    }
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -95,7 +112,7 @@ function App() {
         dispatch(numberTrashAction.initNumberTrash({number: result.data}));
       }
     };
-    if( dataLogin.isLogin ) {
+    if( dataLogin.id ) {
       initNumberTrash();
     }
   }, [dataLogin])
@@ -118,6 +135,7 @@ function App() {
             }
           />
           <Route exact path="/sign" element={<Sign />} />
+          <Route exact path="/authentication-join" element={<AuthenAcceptMember isInvite={isInvite} setIsInvite={setIsInvite} />} />
         </Routes>
       </Router>
       <ToastContainer />

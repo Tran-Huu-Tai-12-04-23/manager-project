@@ -72,48 +72,56 @@ function TaskBoardItem({ data, index , setTaskSelectToEdit}) {
             {...provided.dragHandleProps}
             onMouseOver={e => setShowFeature(true)}
             onMouseLeave={e => setShowFeature(false)}
+           
             className={`${
               snapshot.isDragging ? "drop-shadow-2xl" : ""
-            } ignore h-fit transition-all cursor-grab mt-2 ml-2 mr-2 p-2 rounded-xl bg-blur-light dark:bg-dark-primary`}
+            } ignore flex-shrink-0 overflow-hidden cursor-grab mt-2 ml-2 mr-2 p-3 rounded-xl bg-blur-light dark:bg-dark-primary`}
           >
-            <div className={`justify-between flex`}>
-              <div
-                className={`p-1 h-fit rounded-md w-14 text-xs text-center ${
-                  data.priority == "0"
-                    ? "bg-low text-low"
-                    : data.priority == "1"
-                    ? "bg-medium text-medium"
-                    : "bg-high text-high"
-                }`}
-              >
-                {priorityName}
-              </div>
-              {/* {checked && (
-                <Checkbox
-                  sx={{ color: "inherit" }}
-                  checked={checkDone}
-                  onChange={(e) => setCheckDone(e.target.checked)}
-                />
-              )} */}
-            </div>
-            <div className="flex justify-between items-center">
-              <h1 className="capitalize text-sm font-family font-bold mt-2 text-clip w-full">
-                {data.name}
-              </h1>
-              <h1 className=" text-xs text-end text-blur-light dark:text-blur-dark font-family font-bold mt-2 text-clip w-full">
-                {new Date(data.createdAt).toLocaleDateString()}
-              </h1>
-            </div>
-
-            <div className="w-full flex items-center justify-end transition-all" style={{
-              display: showFeature ? 'flex' : 'none'
+            <div  
+            className="transition-all "
+            style={{
+              height: showFeature ? '5.5rem': '3.5rem',
             }}>
-              <CiEdit onClick={e => {
-                setTaskSelectToEdit(data);
-              }} className="text-2xl mr-2 mt-2 hover:text-primary cursor-pointer" />
-              <BsTrash onClick={e => {
-                setShowModalConfirmRemove(true);
-              }} className="text-xl mt-2 hover:text-rose-700 cursor-pointer" />
+              <div className={`justify-between flex`}>
+                <div
+                  className={`p-1 h-fit rounded-md w-14 text-xs text-center ${
+                    data.priority == "0"
+                      ? "bg-low text-low"
+                      : data.priority == "1"
+                      ? "bg-medium text-medium"
+                      : "bg-high text-high"
+                  }`}
+                >
+                  {priorityName}
+                </div>
+                {/* {checked && (
+                  <Checkbox
+                    sx={{ color: "inherit" }}
+                    checked={checkDone}
+                    onChange={(e) => setCheckDone(e.target.checked)}
+                  />
+                )} */}
+              </div>
+              <div className="flex justify-between items-center">
+                <h1 className="capitalize text-sm h-4 truncate text-ellipsis font-family font-bold mt-2 w-full">
+                  {data.name}
+                </h1>
+                <h1 className=" text-xs text-end text-blur-light dark:text-blur-dark font-family font-bold mt-2 text-clip w-full">
+                  {new Date(data.createdAt).toLocaleDateString()}
+                </h1>
+              </div>
+
+              <div className="w-full flex mt-2 items-center justify-end transition-all"   
+              style={{
+                display: showFeature ? 'flex':'none'
+              }}>
+                <CiEdit onClick={e => {
+                  setTaskSelectToEdit(data);
+                }} className="text-2xl mr-2 mt-2 hover:text-primary cursor-pointer" />
+                <BsTrash onClick={e => {
+                  setShowModalConfirmRemove(true);
+                }} className="text-xl mt-2 hover:text-rose-700 cursor-pointer" />
+              </div>
             </div>
           </div>
         );
