@@ -7,15 +7,20 @@ import { toast } from 'react-toastify';
 import Service from '../Service';
 import WaitLoadApi from './WaitLoadApi';
 import Modal from './Modal';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginAction } from '../Store/dataLoginSlice';
 import Util from '../Util';
 
-function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = () => {} }) {
+function FormEditProfile({ action, userId, doneStep = () => {}, setProfile, data }) {
+    const dataLogin = useSelector((state) => state.reducer.dataLogin);
+    const dispatch = useDispatch();
     const [waitCreate, setWaitCreate] = useState(false);
-    const [name, setName] = useState('');
-    const [address, setAddress] = useState('');
-    const [work, setWork] = useState('');
-    const [description, setDescription] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [name, setName] = useState(data.full_name);
+    const [address, setAddress] = useState(data.address);
+    const [work, setWork] = useState(data.role_work);
+    const [description, setDescription] = useState(data.description);
+    const [phoneNumber, setPhoneNumber] = useState(data.phone_number);
+    const [email, setEmail] = useState(data.email || 'Updating...');
     const [open, setOpen] = useState(false);
     const [yourWorks, setYourWorks] = useState([
         'AI (Artificial Intelligence)',
@@ -30,6 +35,7 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
         'Renewable Energy',
         'other',
     ]);
+
     const renderOptions = () => {
         return yourWorks.map((w, index) => {
             return (
@@ -78,6 +84,12 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
                 message: 'Vui lòng nhập số điện thoại của bạn!',
             };
         }
+        if (!email) {
+            return {
+                status: false,
+                message: 'Vui lòng nhập số điện thoại của bạn!',
+            };
+        }
         const checkPhone = Util.isValidPhoneNumber(phoneNumber);
         if (!checkPhone) {
             return {
@@ -85,9 +97,30 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
                 message: 'Số điện thoại không hợp lệ!',
             };
         }
+        const checkEmail = Util.isEmail(email);
+        if (!checkEmail) {
+            return {
+                status: false,
+                message: 'Email không hợp lệ!',
+            };
+        }
         return true;
     };
-    const saveProfile = async () => {
+
+    const checkEditData = () => {
+        if (
+            phoneNumber === data.phone_number &&
+            email === data.email &&
+            description === data.description &&
+            work === data.role_work &&
+            address === data.address &&
+            name === data.name
+        ) {
+            return false;
+        }
+        return true;
+    };
+    const updateProfile = async () => {
         const check = verifyData();
 
         if (check !== true) {
@@ -98,7 +131,19 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
             return;
         }
 
-        await createNewProfile();
+        const checkEditedData = checkEditData();
+
+        if (checkEditedData) {
+            await createNewProfile();
+            dispatch(
+                loginAction.login({
+                    ...dataLogin,
+                    email: email,
+                }),
+            );
+        }
+
+        doneStep();
     };
 
     const createNewProfile = async () => {
@@ -110,19 +155,18 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
                 roleWork: work,
                 userId,
                 phone_number: phoneNumber,
+                email: email,
             };
             setWaitCreate(true);
-            const result = await Service.callApi('/user/profile/create', data);
-
-            if (result.status === true) {
-                setProfile(JSON.parse(result.profile));
-
-                toast.success('Tạo hồ sơ thành công!', {
+            const result = await Service.update('/user/profile', data);
+            if (result.data.status === true) {
+                setProfile(JSON.parse(result.data.profile));
+                toast.success('Chỉnh sửa hồ sơ thành công!', {
                     position: toast.POSITION.TOP_CENTER,
                     autoClose: 2000,
                 });
             } else {
-                toast.error('Tạo hồ sơ thất bại!', {
+                toast.error('Chỉnh sửa hồ sơ thất bại!', {
                     position: toast.POSITION.TOP_CENTER,
                     autoClose: 2000,
                 });
@@ -153,10 +197,10 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
             >
                 <MdOutlineClose></MdOutlineClose>
             </div>
-            <h1 className="text-md border-b-4 border-solid border-primary rounded-sm w-fit">Tạo hồ sơ của bạn</h1>
+            <h1 className="text-md border-b-4 border-solid border-primary rounded-sm w-fit">Chỉnh sửa hồ sơ của bạn</h1>
             <div>
                 <div className="p-2text-black dark:text-white h-max ">
-                    <h5 className="text-sm mt-5  rounded-sm w-fit">Nhập tên của bạn</h5>
+                    <h5 className="text-sm mt-5  rounded-sm w-fit">Chỉnh sửa tên của bạn</h5>
                     <Input
                         value={name}
                         onChange={(e) => {
@@ -165,7 +209,15 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
                         placeholder="ví dụ: Trần Hữu Tài"
                         className={'mt-2 h-8 rounded-md text-sm pl-2'}
                     ></Input>
-                    <h5 className="text-sm mt-5  rounded-sm w-fit">Nhập số điện thoại của bạn</h5>
+                    <h5 className="text-sm mt-5  rounded-sm w-fit">Chỉnh sửa email của bạn</h5>
+                    <Input
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                        }}
+                        className={'mt-2 h-8 rounded-md text-sm pl-2'}
+                    ></Input>
+                    <h5 className="text-sm mt-5  rounded-sm w-fit">Chỉnh sửa số điện thoại của bạn</h5>
                     <Input
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
@@ -173,7 +225,7 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
                         type="phoneNumber"
                         className={'mt-2 h-8 rounded-md text-sm pl-2'}
                     ></Input>
-                    <h5 className="text-sm mt-5  rounded-sm w-fit">Nhập địa chỉ của bạn</h5>
+                    <h5 className="text-sm mt-5  rounded-sm w-fit">Chỉnh sửa địa chỉ của bạn</h5>
                     <Input
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
@@ -201,7 +253,7 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
                             {renderOptions()}
                         </ul>
                     </DropDown>
-                    <h5 className="text-xs mt-5  rounded-sm w-fit">Nhập môt tả của bạn</h5>
+                    <h5 className="text-xs mt-5  rounded-sm w-fit">Chỉnh sửa môt tả của bạn</h5>
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
@@ -218,13 +270,13 @@ function FormCreateProfile({ action, userId, doneStep = () => {}, setProfile = (
                         marginTop: '1rem',
                         fontSize: '.75rem',
                     }}
-                    onClick={saveProfile}
+                    onClick={updateProfile}
                 >
-                    Thêm
+                    Lưu lại
                 </Button>
             </div>
         </div>
     );
 }
 
-export default FormCreateProfile;
+export default FormEditProfile;
