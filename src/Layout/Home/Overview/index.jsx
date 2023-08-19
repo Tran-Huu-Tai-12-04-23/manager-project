@@ -77,7 +77,7 @@ function Overview({ setOpenModalAddNewProject, setActive, waitCallApi }) {
                         onClick={() => {
                             setProjectSelectRemove(null);
                         }}
-                        className="fixed z-50 backdrop-blur-sm top-0 bottom-0 right-0 left-0"
+                        className="fixed z-50 flex justify-center items-center backdrop-blur-sm top-0 bottom-0 right-0 left-0"
                     >
                         <ModalConfirmRemove
                             open={true}

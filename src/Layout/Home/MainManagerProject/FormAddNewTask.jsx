@@ -16,7 +16,7 @@ import { useDispatch } from 'react-redux';
 import { projectDetailAction } from '../../../Store/projectDetailSlice';
 import { projectAction } from '../../../Store/projectSlice';
 
-import WaitLoadApi from '../../../Component/WaitLoadApi';
+import Modal from '../../../Component/Modal';
 import { taskAction } from '../../../Store/taskSlice';
 
 function FormAddNewTask({ action = (e) => {}, dataCol, data, type = 'no-edit' }) {
@@ -99,6 +99,8 @@ function FormAddNewTask({ action = (e) => {}, dataCol, data, type = 'no-edit' })
                     autoClose: 2000,
                 });
                 action();
+                setName('');
+                setDescription('');
             }
             setWaitCallApi(false);
         } else {
@@ -174,12 +176,12 @@ function FormAddNewTask({ action = (e) => {}, dataCol, data, type = 'no-edit' })
             style={{
                 backdropFilter: 'blur(20px)',
             }}
-            className="relative p-4 m-auto translate-y-1/2  w-[50%] min-w-[20rem] max-w-[40rem] min-h-[10rem] max-h-[30rem] h-[60%] text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md "
+            className="relative p-4 m-auto w-[50%] min-w-[20rem] max-w-[40rem] min-h-[20rem] max-h-[40rem] h-[60%] text-black dark:text-white bg-light-second dark:bg-dark-second rounded-md "
         >
             {waitCallApi && (
-                <div className=" fixed flex justify-center items-center backdrop-blur-xl z-50 top-0 bottom-0 right-0 left-0">
+                <Modal open={true} setOpen={() => {}}>
                     <CircularProgress />
-                </div>
+                </Modal>
             )}
             <div
                 onClick={action}

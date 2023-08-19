@@ -159,7 +159,6 @@ const Calendar = () => {
     };
 
     useEffect(() => {
-        setDate(new Date());
         const recentDays = [];
         for (let i = 0; i < 7; i++) {
             const id = uuid();
