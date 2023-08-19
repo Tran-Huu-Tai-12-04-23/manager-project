@@ -26,12 +26,12 @@ function Setting({ setActive, preActive }) {
     const [showDrawer, setShowDrawer] = useState(false);
     const dataLogin = useSelector((state) => state.reducer.dataLogin);
     const [openModalCreateProfile, setOpenModalCreateProfile] = useState(false);
-    const [openModalChangePassword, setOpenModalChangePass] = useState(false);
+    const [changePassword, setChangePassword] = useState(false);
     const [editProfile, setEditProfile] = useState(false);
     const [background, setBackground] = useState(null);
     const [waitUploadImage, setWaitUploadImage] = useState(false);
     const [profile, setProfile] = useState(null);
-    console.log(background);
+
     useEffect(() => {
         const checkProfileExist = async () => {
             if (dataLogin.id) {
@@ -134,6 +134,7 @@ function Setting({ setActive, preActive }) {
             autoClose: 2000,
         });
     };
+
     return (
         <>
             <Drawer
@@ -164,14 +165,13 @@ function Setting({ setActive, preActive }) {
             {profileExist && (
                 <div className=" max-w-[90%] mb-20 mt-10 ml-auto mr-auto p-4 rounded-md ">
                     <div
-                        className=" relative z-2 rounded-md h-[20rem] group"
+                        className=" relative bg-contain z-2 rounded-md h-[20rem] group"
                         style={{
                             background: `${
                                 background
                                     ? `url(${background}) `
                                     : 'linear-gradient(90deg, rgba(40,28,237,.4) 0%, rgba(239,0,255,.5) 78%)'
                             }`,
-                            backgroundSize: 'contain',
                         }}
                     >
                         <div
@@ -192,25 +192,20 @@ function Setting({ setActive, preActive }) {
                             className="group-hover:block hidden text-primary scale-125 absolute right-1/2 top-1/2 translate-x-1/2 -translate-y-1/2"
                         ></AiOutlineCamera>
                     </div>
-                    {/* <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Ai có thể xem hồ sơ của bạn
-                    </label>
-                    <Select value={publicView} setValue={setPublicView}></Select> */}
 
                     <InfoUser setEditProfile={setEditProfile} data={profile} dataLogin={dataLogin}></InfoUser>
+                    {!dataLogin.isLoginOtherPlatform && (
+                        <button
+                            onClick={() => setChangePassword(true)}
+                            type="button"
+                            className="py-2.5 mt-5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none rounded-lg border hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                        >
+                            Chỉnh sửa mật khẩu
+                        </button>
+                    )}
                 </div>
             )}
-            {/* {!profileExist && (
-                <div className="mt-20 w-full justify-center items-center flex">
-                    <div
-                        onClick={(e) => setOpenModalCreateProfile(true)}
-                        className="p-4 mb-4 cursor-pointer hover:brightness-125 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
-                        role="alert"
-                    >
-                        <span className="font-medium">Bắt đầu điền thông tin cơ bản của bạn</span>
-                    </div>
-                </div>
-            )} */}
+
             <Modal open={openModalCreateProfile} setOpen={setOpenModalCreateProfile}>
                 <FormCreateProfile
                     action={(e) => setOpenModalCreateProfile(false)}
@@ -232,53 +227,9 @@ function Setting({ setActive, preActive }) {
                 </Modal>
             )}
 
-            {/* <div className="w-full relative h-screen overflow-auto">
-                <div
-                    className="w-full h-80"
-                ></div>
-                <div className="absolute top-64 left-1/2 -translate-x-1/2">
-                </div>
-                {!profileExist && (
-                    <div className="mt-20 w-full justify-center items-center flex">
-                        <Button onClick={(e) => setOpenModalCreateProfile(true)} sx={{ fontSize: '.75rem' }}>
-                            Tạo hồ sơ
-                        </Button>
-                    </div>
-                )}
-                <div className="mt-20 w-full justify-center items-center flex">
-                    <Button onClick={(e) => setOpenModalChangePass(true)} sx={{ fontSize: '.75rem' }}>
-                        Chỉnh sửa mật khẩu của bạn
-                    </Button>
-                </div>
-                <div className="xl:w-20rem lg:w-20rem md:w-20rem mb-40 p-4 w-full ml-auto rounded-xl mr-auto bg-light-second dark:bg-dark-second mt-20">
-                    <h5 className="font-bold text-md">Giới thiệu về bạn</h5>
-                    <div className="flex flex-col mt-5 items-center ">
-                        <div className=" justify-start flex flex-col items-center">
-                            <h5 className="text-md">Họ tên của bạn</h5>
-                            <h5 className="text-md mt-2 text-slate-400 font-bold">Trần Hữu Tài</h5>
-                        </div>
-                        <div className=" justify-start flex flex-col items-center mt-5 border-t-1 border-solid border-blur-light dark:border-blur-dark">
-                            <h5 className="text-md">Email của bạn</h5>
-                            <h5 className="text-md mt-2 text-slate-400 font-bold">hutt@gmail.com</h5>
-                        </div>
-                        <div className=" justify-start flex flex-col items-center mt-5 border-t-1 border-solid border-blur-light dark:border-blur-dark">
-                            <h5 className="text-md">Bạn đang là</h5>
-                            <h5 className="text-md mt-2 text-slate-400 font-bold">Website Developer</h5>
-                        </div>
-                        <div className=" justify-start flex flex-col items-center mt-5 border-t-1 border-solid border-blur-light dark:border-blur-dark">
-                            <h5 className="text-md">Mô tả của bạn</h5>
-                            <h5 className="text-md mt-2 text-slate-400 font-bold">....</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <ModalCustom open={openModalChangePassword} setOpen={setOpenModalChangePass}>
-                    <JackInTheBox duration={500}>
-                        <FormChangePassword action={(e) => setOpenModalChangePass(false)}></FormChangePassword>
-                    </JackInTheBox>
-                </ModalCustom>
-                
-            </div> */}
+            <Modal open={changePassword} setOpen={setChangePassword}>
+                <FormChangePassword dataLogin={dataLogin} action={(e) => setChangePassword(false)}></FormChangePassword>
+            </Modal>
         </>
     );
 }

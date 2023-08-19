@@ -26,7 +26,9 @@ function Overview({ setOpenModalAddNewProject, setActive, waitCallApi }) {
     const [projectSelectRemove, setProjectSelectRemove] = useState(null);
 
     const handleRemoveProject = async () => {
+        setWaitLoad(true);
         const result = await Service.remove('/project/remove-soft-project', `/?projectId=${projectSelect._id}`);
+        setWaitLoad(false);
 
         if (result.status === true) {
             toast.success(result.message, {

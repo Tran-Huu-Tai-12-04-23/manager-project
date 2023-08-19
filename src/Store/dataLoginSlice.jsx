@@ -8,6 +8,7 @@ const dataLoginSlice = createSlice({
         photoURL: null,
         id: null,
         email: null,
+        isLoginOtherPlatform: null,
     },
     reducers: {
         login: (state, action) => {
@@ -19,6 +20,7 @@ const dataLoginSlice = createSlice({
                 displayName: null,
                 photoURL: null,
                 id: null,
+                isLoginOtherPlatform: null,
                 email: null,
             };
         },

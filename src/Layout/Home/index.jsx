@@ -20,7 +20,7 @@ const Home = ({ setOpenModalAddNewProject }) => {
     const history = useNavigate();
     const dataLogin = useSelector((state) => state.reducer.dataLogin);
     const dispatch = useDispatch();
-    const [waitCallApi, setWaitCallApi] = useState(true);
+    const [waitCallApi, setWaitCallApi] = useState(false);
 
     useEffect(() => {
         if (!dataLogin.isLogin) {
@@ -30,7 +30,9 @@ const Home = ({ setOpenModalAddNewProject }) => {
 
     useEffect(() => {
         const intiProjects = async () => {
+            setWaitCallApi(true);
             const result = await Service.getDataFromApi('/project/get-projects', `/?user_id=${dataLogin.id}`);
+            console.log(result);
             if (result.status === true) {
                 dispatch(projectAction.init(JSON.parse(result.data)));
             }

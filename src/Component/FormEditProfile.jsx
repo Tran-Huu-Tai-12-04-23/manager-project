@@ -20,7 +20,7 @@ function FormEditProfile({ action, userId, doneStep = () => {}, setProfile, data
     const [work, setWork] = useState(data.role_work);
     const [description, setDescription] = useState(data.description);
     const [phoneNumber, setPhoneNumber] = useState(data.phone_number);
-    const [email, setEmail] = useState(data.email || 'Updating...');
+    const [email, setEmail] = useState(dataLogin.email || 'Updating...');
     const [open, setOpen] = useState(false);
     const [yourWorks, setYourWorks] = useState([
         'AI (Artificial Intelligence)',
@@ -134,7 +134,7 @@ function FormEditProfile({ action, userId, doneStep = () => {}, setProfile, data
         const checkEditedData = checkEditData();
 
         if (checkEditedData) {
-            await createNewProfile();
+            await updateProfileUser();
             dispatch(
                 loginAction.login({
                     ...dataLogin,
@@ -146,7 +146,15 @@ function FormEditProfile({ action, userId, doneStep = () => {}, setProfile, data
         doneStep();
     };
 
-    const createNewProfile = async () => {
+    const clearForm = () => {
+        setName('');
+        setEmail('');
+        setDescription('');
+        setWork('');
+        setPhoneNumber('');
+        setAddress('');
+    };
+    const updateProfileUser = async () => {
         if (userId) {
             const data = {
                 fullName: name,
@@ -165,6 +173,7 @@ function FormEditProfile({ action, userId, doneStep = () => {}, setProfile, data
                     position: toast.POSITION.TOP_CENTER,
                     autoClose: 2000,
                 });
+                clearForm();
             } else {
                 toast.error('Chỉnh sửa hồ sơ thất bại!', {
                     position: toast.POSITION.TOP_CENTER,

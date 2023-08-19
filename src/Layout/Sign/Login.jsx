@@ -73,6 +73,7 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
                             uid,
                             photoURL,
                             displayName,
+                            isLoginOtherPlatform: true,
                         });
                     }
                     // console.log(user);
@@ -89,6 +90,7 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
                             photoURL: userGet.photoURL,
                             displayName: userGet.displayName,
                             isLogin: true,
+                            isLoginOtherPlatform: true,
                         });
                         toast.success('Đăng nhập thành công!', {
                             position: toast.POSITION.TOP_CENTER,
@@ -115,13 +117,15 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
             const user = res.user;
             const dataUser = user.providerData[0];
             const { uid, photoURL, displayName } = user;
+            console.log(uid);
             const email = dataUser.email;
             if (user.metadata.creationTime === user.metadata.lastSignInTime) {
                 await Service.callApi('/user/register', {
-                    email: dataUser.uid + '-github',
+                    email: '',
                     uid,
                     photoURL,
                     displayName,
+                    isLoginOtherPlatform: true,
                 });
             }
 
@@ -130,13 +134,16 @@ function Login({ theme, handleThemeSwitch, setActiveLogin }) {
                 id: uid,
             });
 
+            const data = JSON.parse(result.data);
+
             if (result.status === true) {
                 handleSaveLogin({
-                    email: dataUser.uid + '-github',
-                    id: result._id,
-                    photoURL,
-                    displayName,
+                    email: data.email,
+                    id: data._id,
+                    photoURL: data.photoURL,
+                    displayName: data.displayName,
                     isLogin: true,
+                    isLoginOtherPlatform: data.isLoginOtherPlatform,
                 });
                 toast.success('Đăng nhập thành công!', {
                     position: toast.POSITION.TOP_CENTER,
